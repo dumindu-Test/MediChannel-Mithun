@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Doctors - eChannelling</title>
+    <meta name="description" content="Find and book appointments with qualified doctors across Sri Lanka">
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" sizes="16x16">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="css/echannelling-styles.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/doctor-search.css">
+    <link rel="stylesheet" href="css/universal-navigation.css">
+
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html"><img src="images/placeholder-logo.svg" alt="eChannelling" class="logo-img"></a>
+                </div>
+                <nav class="main-nav">
+                    <ul class="nav-menu">
+                        <li><a href="index.html" class="nav-link" data-translate="home">Home</a></li>
+                        <li><a href="find-doctors.html" class="nav-link active" data-translate="findDoctors">Find Doctors</a></li>
+                        <li><a href="hospitals.html" class="nav-link" data-translate="hospitals">Hospitals</a></li>
+                        <li><a href="specialities.html" class="nav-link" data-translate="specialities">Specialities</a></li>
+                        <li><a href="about.html" class="nav-link" data-translate="about">About</a></li>
+                        <li><a href="contact.html" class="nav-link" data-translate="contact">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="btn-language">EN | සිං</button>
+                    <button class="btn-login" onclick="window.location.href='login.html'" data-translate="login">Login</button>
+                    <button class="btn-register" onclick="window.location.href='register.html'" data-translate="register">Register</button>
+                </div>
+                <div class="mobile-menu-toggle">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Hero -->
+    <section class="search-hero">
+        <div class="container">
+            <div class="search-hero-content">
+                <h1 data-translate="findDoctorsTitle">Find Your Doctor</h1>
+                <p data-translate="findDoctorsSubtitle">Search and book appointments with qualified doctors across Sri Lanka</p>
+                
+                <div class="search-form-container">
+                    <form class="doctor-search-form" id="doctor-search-form">
+                        <div class="search-row">
+                            <div class="search-field">
+                                <select id="speciality-select" class="search-select" onchange="doctorSearchManager.performSearch()">
+                                    <option value="">All Specialities</option>
+                                    <option value="cardiology">Cardiology</option>
+                                    <option value="dermatology">Dermatology</option>
+                                    <option value="orthopedic surgery">Orthopedic Surgery</option>
+                                    <option value="pediatrics">Pediatrics</option>
+                                    <option value="internal medicine">Internal Medicine</option>
+                                    <option value="general surgery">General Surgery</option>
+                                    <option value="obstetrics & gynecology">Obstetrics & Gynecology</option>
+                                    <option value="psychiatry">Psychiatry</option>
+                                    <option value="ophthalmology">Ophthalmology</option>
+                                    <option value="gastroenterology">Gastroenterology</option>
+                                    <option value="neurology">Neurology</option>
+                                    <option value="urology">Urology</option>
+                                    <option value="emergency medicine">Emergency Medicine</option>
+                                    <option value="plastic surgery">Plastic Surgery</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <select id="location-select" class="search-select" onchange="doctorSearchManager.performSearch()">
+                                    <option value="">All Locations</option>
+                                    <option value="colombo">Colombo</option>
+                                    <option value="kandy">Kandy</option>
+                                    <option value="galle">Galle</option>
+                                    <option value="negombo">Negombo</option>
+                                    <option value="wattala">Wattala</option>
+                                </select>
+                            </div>
+                            <div class="search-field">
+                                <input type="text" id="doctor-name-input" class="search-input" placeholder="Doctor name or hospital" oninput="doctorSearchManager.performSearch()">
+                            </div>
+                            <button type="submit" class="btn-search-doctors">🔍 Search Doctors</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Filters & Results -->
+    <section class="doctors-section">
+        <div class="container">
+            <div class="doctors-layout">
+                <!-- Sidebar Filters -->
+                <aside class="doctors-sidebar">
+                    <div class="filters-container">
+                        <h3>Filter Doctors</h3>
+                        
+                        <div class="filter-group">
+                            <h4>Availability</h4>
+                            <div class="filter-options">
+                                <label class="filter-option">
+                                    <input type="checkbox" value="today" class="filter-checkbox">
+                                    <span>Available Today</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" value="tomorrow" class="filter-checkbox">
+                                    <span>Available Tomorrow</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" value="week" class="filter-checkbox">
+                                    <span>This Week</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Rating</h4>
+                            <div class="filter-options">
+                                <label class="filter-option">
+                                    <input type="checkbox" value="5" class="filter-checkbox">
+                                    <span>⭐⭐⭐⭐⭐ 5 Stars</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" value="4" class="filter-checkbox">
+                                    <span>⭐⭐⭐⭐ 4+ Stars</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" value="3" class="filter-checkbox">
+                                    <span>⭐⭐⭐ 3+ Stars</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <h4>Consultation Fee</h4>
+                            <div class="filter-options">
+                                <label class="filter-option">
+                                    <input type="checkbox" value="low" class="filter-checkbox">
+                                    <span>Under Rs. 2,000</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" value="medium" class="filter-checkbox">
+                                    <span>Rs. 2,000 - 5,000</span>
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" value="high" class="filter-checkbox">
+                                    <span>Above Rs. 5,000</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button class="btn-clear-filters">Clear All Filters</button>
+                    </div>
+                </aside>
+
+                <!-- Main Content -->
+                <main class="doctors-main">
+                    <div class="doctors-header">
+                        <div class="results-info">
+                            <h2 id="results-count">Showing 24 doctors</h2>
+                            <p id="results-description">Find the right doctor for your needs</p>
+                        </div>
+                        <div class="sort-options">
+                            <select id="sort-select" class="sort-select">
+                                <option value="relevance">Sort by Relevance</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="fee-low">Lowest Fee</option>
+                                <option value="fee-high">Highest Fee</option>
+                                <option value="availability">Availability</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="doctors-grid" id="doctors-grid">
+                        <!-- Doctor cards will be dynamically loaded here -->
+                    </div>
+
+                    <div class="pagination">
+                        <button class="pagination-btn" id="prev-page">← Previous</button>
+                        <div class="pagination-numbers">
+                            <span class="page-number active">1</span>
+                            <span class="page-number">2</span>
+                            <span class="page-number">3</span>
+                            <span class="pagination-dots">...</span>
+                            <span class="page-number">10</span>
+                        </div>
+                        <button class="pagination-btn" id="next-page">Next →</button>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="images/placeholder-logo.svg" alt="eChannelling">
+                    </div>
+                    <p>Sri Lanka's leading healthcare appointment booking platform connecting patients with qualified doctors.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📘</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">💼</a>
+                        <a href="#" class="social-link">📷</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="find-doctors.html">Find Doctors</a></li>
+                        <li><a href="hospitals.html">Hospitals</a></li>
+                        <li><a href="specialities.html">Specialities</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact Info</h4>
+                    <div class="contact-info">
+                        <p><strong>Phone:</strong> +94 11 234 5678</p>
+                        <p><strong>Email:</strong> info@echannelling.com</p>
+                        <p><strong>Address:</strong> No. 123, Main Street<br>Colombo 07, Sri Lanka</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 eChannelling. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/translations.js"></script>
+
+    <script src="js/echannelling-main.js"></script>
+    <script src="js/find-doctors.js"></script>
+    <script>
+        // Force initialization after scripts load
+        window.addEventListener('load', () => {
+            console.log('Window loaded, checking doctor search manager...');
+            if (!window.doctorSearchManager) {
+                console.log('Creating doctor search manager...');
+                window.doctorSearchManager = new DoctorSearchManager();
+            }
+        });
+    </script>
+    <script src="js/universal-navigation.js"></script>
+</body>
+</html>

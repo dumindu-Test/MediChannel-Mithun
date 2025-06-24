@@ -1,0 +1,998 @@
+/* Theme Variables - Medical Blue and White Theme */
+:root {
+    /* Primary Medical Blue Colors */
+    --primary-color: #1976d2;
+    --primary-hover: #1565c0;
+    --primary-light: rgba(25, 118, 210, 0.08);
+    --primary-rgb: 25, 118, 210;
+    
+    /* Secondary Light Blue Colors */
+    --secondary-color: #42a5f5;
+    --secondary-hover: #2196f3;
+    --secondary-light: rgba(66, 165, 245, 0.08);
+    --secondary-rgb: 66, 165, 245;
+    
+    /* Status Colors */
+    --success-color: #4caf50;
+    --success-hover: #388e3c;
+    --success-light: rgba(76, 175, 80, 0.08);
+    --error-color: #f44336;
+    --error-light: rgba(244, 67, 54, 0.08);
+    --warning-color: #ff9800;
+    --info-color: #03a9f4;
+    
+    /* Background Colors - Clean White Base */
+    --bg-color: #ffffff;
+    --surface-color: #fafafa;
+    --card-bg: #ffffff;
+    --nav-bg: rgba(255, 255, 255, 0.98);
+    --footer-bg: #1976d2;
+    
+    /* Text Colors */
+    --text-color: #212121;
+    --text-primary: #212121;
+    --text-secondary: #757575;
+    --text-light: #9e9e9e;
+    --footer-text: #ffffff;
+    --footer-text-secondary: rgba(255, 255, 255, 0.8);
+    
+    /* Border and Shadow */
+    --border-color: #e0e0e0;
+    --border-light: #f5f5f5;
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --shadow-hover: 0 4px 16px rgba(0, 0, 0, 0.15);
+    --shadow-color: rgba(25, 118, 210, 0.1);
+    
+    /* Medical Interface Colors */
+    --medical-blue: #1976d2;
+    --medical-light-blue: #e3f2fd;
+    --medical-green: #4caf50;
+    --medical-red: #f44336;
+    --accent-blue: #42a5f5;
+}
+
+/* Light Theme (Alternative Blue and White) */
+[data-theme="light"] {
+    --primary-color: #2563eb;
+    --primary-hover: #1d4ed8;
+    --primary-light: rgba(37, 99, 235, 0.1);
+    --secondary-color: #64748b;
+    --secondary-light: rgba(100, 116, 139, 0.1);
+    --success-color: #1d4ed8;
+    --success-hover: #1e40af;
+    --success-light: rgba(29, 78, 216, 0.1);
+    --error-color: #dc2626;
+    --error-light: rgba(220, 38, 38, 0.1);
+    --warning-color: #3b82f6;
+    --info-color: #0ea5e9;
+    
+    /* Background Colors - Pure White */
+    --bg-color: #ffffff;
+    --card-bg: #f8fafc;
+    --nav-bg: rgba(255, 255, 255, 0.98);
+    --footer-bg: #1e40af;
+    
+    /* Text Colors */
+    --text-color: #1e293b;
+    --text-secondary: #475569;
+    --footer-text: #ffffff;
+    --footer-text-secondary: rgba(255, 255, 255, 0.8);
+    
+    /* Border and Shadow */
+    --border-color: #e2e8f0;
+    --shadow-color: rgba(37, 99, 235, 0.1);
+    
+    /* Healthcare specific colors for light theme */
+    --medical-blue: #2563eb;
+    --medical-green: #1d4ed8;
+    --medical-red: #dc2626;
+    --medical-orange: #3b82f6;
+    
+    /* About page specific light theme colors */
+    --hero-bg: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+    --section-bg: #ffffff;
+    --card-hover-bg: #f8fafc;
+    --timeline-bg: #f1f5f9;
+    --accent-glow: rgba(37, 99, 235, 0.1);
+}
+
+/* Dark Theme (Blue and White Dark Variant) */
+[data-theme="dark"] {
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --primary-light: rgba(59, 130, 246, 0.1);
+    --secondary-color: #64748b;
+    --secondary-light: rgba(100, 116, 139, 0.1);
+    --success-color: #3b82f6;
+    --success-hover: #2563eb;
+    --success-light: rgba(59, 130, 246, 0.1);
+    --error-color: #dc2626;
+    --error-light: rgba(220, 38, 38, 0.1);
+    --warning-color: #60a5fa;
+    --info-color: #0ea5e9;
+    
+    /* Background Colors - Dark Blue Scheme */
+    --bg-color: #0f172a;
+    --card-bg: #1e293b;
+    --nav-bg: rgba(15, 23, 42, 0.98);
+    --footer-bg: #0c1324;
+    
+    /* Text Colors */
+    --text-color: #f8fafc;
+    --text-secondary: #cbd5e1;
+    --footer-text: #f8fafc;
+    --footer-text-secondary: rgba(248, 250, 252, 0.8);
+    
+    /* Border and Shadow */
+    --border-color: #334155;
+    --shadow-color: rgba(0, 0, 0, 0.3);
+    
+    /* Healthcare specific colors for dark theme */
+    --medical-blue: #3b82f6;
+    --medical-green: #60a5fa;
+    --medical-red: #dc2626;
+    --medical-orange: #60a5fa;
+    
+    /* About page specific dark theme colors */
+    --hero-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --section-bg: #1e293b;
+    --card-hover-bg: #334155;
+    --timeline-bg: #1e293b;
+    --accent-glow: rgba(59, 130, 246, 0.2);
+}
+
+/* Enhanced Dark Theme Styles for About Page */
+[data-theme="dark"] .about-hero-modern {
+    background: var(--hero-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .about-hero-modern::before {
+    background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+}
+
+[data-theme="dark"] .mission-vision-modern,
+[data-theme="dark"] .story-section,
+[data-theme="dark"] .values-section {
+    background-color: var(--section-bg);
+}
+
+[data-theme="dark"] .value-card,
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .vision-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+[data-theme="dark"] .value-card:hover,
+[data-theme="dark"] .feature-card:hover {
+    background: var(--card-hover-bg);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+[data-theme="dark"] .timeline-item {
+    background: var(--timeline-bg);
+    border-left: 3px solid var(--primary-color);
+}
+
+[data-theme="dark"] .timeline-marker {
+    background: var(--primary-color);
+    color: #000;
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+[data-theme="dark"] .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+[data-theme="dark"] .stat-card:hover {
+    background: var(--card-hover-bg);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+[data-theme="dark"] .floating-shape {
+    background: linear-gradient(45deg, var(--primary-color), var(--info-color));
+    opacity: 0.1;
+}
+
+[data-theme="dark"] .hero-badge {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: var(--primary-color);
+}
+
+[data-theme="dark"] .text-gradient,
+[data-theme="dark"] .title-gradient {
+    background: linear-gradient(135deg, var(--primary-color), var(--info-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Enhanced Dark Theme Styles for Contact Page */
+[data-theme="dark"] .page-header {
+    background: var(--hero-bg);
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .contact-content,
+[data-theme="dark"] .contact-form-section,
+[data-theme="dark"] .contact-info-section {
+    background-color: var(--section-bg);
+}
+
+[data-theme="dark"] .contact-form,
+[data-theme="dark"] .contact-info-card,
+[data-theme="dark"] .info-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+[data-theme="dark"] .contact-form:hover,
+[data-theme="dark"] .info-card:hover {
+    background: var(--card-hover-bg);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+[data-theme="dark"] .form-group input,
+[data-theme="dark"] .form-group textarea,
+[data-theme="dark"] .form-group select {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-group input:focus,
+[data-theme="dark"] .form-group textarea:focus,
+[data-theme="dark"] .form-group select:focus {
+    background: var(--card-hover-bg);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+[data-theme="dark"] .btn-primary {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: #000;
+}
+
+[data-theme="dark"] .btn-primary:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+    box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+[data-theme="dark"] .contact-info-item {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .contact-info-item:hover {
+    background: var(--card-hover-bg);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .contact-info-icon {
+    background: var(--primary-color);
+    color: #000;
+}
+
+[data-theme="dark"] .map-container {
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+}
+
+/* Enhanced Dark Theme Styles for All Pages */
+
+/* Enhanced Dropdown Styling for Dark Theme */
+[data-theme="dark"] select,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .dropdown-select,
+[data-theme="dark"] .filter-select,
+[data-theme="dark"] select.form-control {
+    background: #0a0a0a !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    outline: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    background-repeat: no-repeat !important;
+}
+
+[data-theme="dark"] select:hover,
+[data-theme="dark"] .form-control:hover,
+[data-theme="dark"] .filter-select:hover,
+[data-theme="dark"] select.form-control:hover {
+    background: #1a1a1a !important;
+    background-image: none !important;
+    border-color: #555555 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] select:focus,
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .filter-select:focus,
+[data-theme="dark"] select.form-control:focus {
+    outline: none !important;
+    background: #0a0a0a !important;
+    background-image: none !important;
+    border-color: #666666 !important;
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] select option {
+    background: #0a0a0a !important;
+    color: #ffffff !important;
+    padding: 12px !important;
+    border: none !important;
+}
+
+[data-theme="dark"] select option:hover,
+[data-theme="dark"] select option:checked,
+[data-theme="dark"] select option:selected {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+}
+
+/* Multi-select dropdown styling */
+[data-theme="dark"] .multiselect-dropdown {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border: 2px solid #3b82f6;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .multiselect-option {
+    background: transparent;
+    color: #ffffff;
+    padding: 10px 16px;
+    transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .multiselect-option:hover {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+}
+
+[data-theme="dark"] .multiselect-option.selected {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+/* Universal dropdown arrow removal for all browsers and all selectors */
+select::-ms-expand {
+    display: none !important;
+}
+
+select::-webkit-inner-spin-button,
+select::-webkit-outer-spin-button {
+    -webkit-appearance: none !important;
+    margin: 0 !important;
+}
+
+/* Force all select elements to have dark styling in dark theme */
+[data-theme="dark"] select,
+[data-theme="dark"] .form-control,
+[data-theme="dark"] select.form-control,
+[data-theme="dark"] .dropdown-select,
+[data-theme="dark"] .filter-select,
+[data-theme="dark"] input[type="select"],
+[data-theme="dark"] .form-group select,
+[data-theme="dark"] .input-group select {
+    background: #0a0a0a !important;
+    background-image: none !important;
+    background-attachment: initial !important;
+    background-clip: initial !important;
+    background-origin: initial !important;
+    background-position: initial !important;
+    background-repeat: no-repeat !important;
+    background-size: 0 !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    outline: none !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    -ms-appearance: none !important;
+}
+
+/* Hover states for all dropdown types */
+[data-theme="dark"] select:hover,
+[data-theme="dark"] .form-control:hover,
+[data-theme="dark"] select.form-control:hover,
+[data-theme="dark"] .dropdown-select:hover,
+[data-theme="dark"] .filter-select:hover,
+[data-theme="dark"] .form-group select:hover,
+[data-theme="dark"] .input-group select:hover {
+    background: #1a1a1a !important;
+    background-image: none !important;
+    border-color: #555555 !important;
+    color: #ffffff !important;
+}
+
+/* Focus states for all dropdown types */
+[data-theme="dark"] select:focus,
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] select.form-control:focus,
+[data-theme="dark"] .dropdown-select:focus,
+[data-theme="dark"] .filter-select:focus,
+[data-theme="dark"] .form-group select:focus,
+[data-theme="dark"] .input-group select:focus {
+    outline: none !important;
+    background: #0a0a0a !important;
+    background-image: none !important;
+    border-color: #666666 !important;
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+/* Global dropdown styling override - applies to ALL select elements regardless of class */
+select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    -ms-appearance: none !important;
+}
+
+/* Force white calendar icon in all themes */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(100) contrast(100%) !important;
+    -webkit-filter: invert(1) brightness(100) contrast(100%) !important;
+    color: white !important;
+    background: transparent !important;
+}
+
+[data-theme="dark"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="morning"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="afternoon"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="evening"] input[type="date"]::-webkit-calendar-picker-indicator,
+[data-theme="night"] input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(100) contrast(100%) !important;
+    -webkit-filter: invert(1) brightness(100) contrast(100%) !important;
+    color: white !important;
+}
+
+/* Dark theme universal dropdown styling */
+[data-theme="dark"] select,
+[data-theme="dark"] select[class*="dropdown"],
+[data-theme="dark"] select[class*="filter"],
+[data-theme="dark"] select[class*="form"],
+[data-theme="dark"] select[id*="filter"],
+[data-theme="dark"] select[id*="dropdown"],
+[data-theme="dark"] select[name*="filter"],
+[data-theme="dark"] select[name*="dropdown"] {
+    background: #0a0a0a !important;
+    background-image: none !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+    border-radius: 8px !important;
+    padding: 12px 16px !important;
+    font-size: 0.95rem !important;
+    font-weight: 400 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    width: 100% !important;
+    outline: none !important;
+}
+
+/* Universal hover states */
+[data-theme="dark"] select:hover,
+[data-theme="dark"] select[class*="dropdown"]:hover,
+[data-theme="dark"] select[class*="filter"]:hover,
+[data-theme="dark"] select[class*="form"]:hover {
+    background: #1a1a1a !important;
+    background-image: none !important;
+    border-color: #555555 !important;
+    color: #ffffff !important;
+}
+
+/* Override any conflicting styles from other CSS files */
+[data-theme="dark"] * select {
+    background: #0a0a0a !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+}
+
+/* Additional cross-browser compatibility for dropdown arrows removal */
+[data-theme="dark"] select {
+    background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg"></svg>') !important;
+    background-size: 0 !important;
+    background-repeat: no-repeat !important;
+    padding-right: 16px !important;
+}
+
+/* Remove any vendor-specific dropdown styling */
+[data-theme="dark"] select::-webkit-calendar-picker-indicator {
+    display: none !important;
+}
+
+[data-theme="dark"] select::-webkit-clear-button {
+    display: none !important;
+}
+
+[data-theme="dark"] select::-webkit-search-cancel-button {
+    display: none !important;
+}
+
+/* Homepage Hero Section */
+[data-theme="dark"] .hero {
+    background: var(--hero-bg);
+}
+
+[data-theme="dark"] .hero::before {
+    background: radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.1) 0%, transparent 50%);
+}
+
+/* Statistics and Features */
+[data-theme="dark"] .statistics,
+[data-theme="dark"] .features,
+[data-theme="dark"] .services {
+    background-color: var(--section-bg);
+}
+
+/* Login and Register Pages */
+[data-theme="dark"] .auth-container,
+[data-theme="dark"] .register-container {
+    background: var(--section-bg);
+}
+
+[data-theme="dark"] .auth-form,
+[data-theme="dark"] .register-form,
+[data-theme="dark"] .step-form {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 32px var(--shadow-color);
+}
+
+[data-theme="dark"] .auth-form:hover,
+[data-theme="dark"] .register-form:hover {
+    background: var(--card-hover-bg);
+}
+
+/* Booking Page */
+[data-theme="dark"] .booking-container,
+[data-theme="dark"] .booking-step,
+[data-theme="dark"] .doctor-selection,
+[data-theme="dark"] .calendar-container,
+[data-theme="dark"] .time-slots-container {
+    background: var(--section-bg);
+}
+
+[data-theme="dark"] .doctor-card,
+[data-theme="dark"] .booking-card,
+[data-theme="dark"] .step-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+[data-theme="dark"] .doctor-card:hover,
+[data-theme="dark"] .booking-card:hover {
+    background: var(--card-hover-bg);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+[data-theme="dark"] .calendar-day,
+[data-theme="dark"] .time-slot {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .calendar-day:hover,
+[data-theme="dark"] .time-slot:hover {
+    background: var(--card-hover-bg);
+    border-color: var(--primary-color);
+}
+
+[data-theme="dark"] .calendar-day.selected,
+[data-theme="dark"] .time-slot.selected {
+    background: var(--primary-color);
+    color: #000;
+    border-color: var(--primary-color);
+}
+
+/* Dashboard Pages */
+[data-theme="dark"] .dashboard-container,
+[data-theme="dark"] .dashboard-content,
+[data-theme="dark"] .dashboard-main {
+    background: var(--section-bg);
+}
+
+[data-theme="dark"] .sidebar {
+    background: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .dashboard-card,
+[data-theme="dark"] .appointment-card,
+[data-theme="dark"] .patient-card,
+[data-theme="dark"] .doctor-card-dashboard {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+[data-theme="dark"] .dashboard-card:hover,
+[data-theme="dark"] .appointment-card:hover,
+[data-theme="dark"] .patient-card:hover {
+    background: var(--card-hover-bg);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+/* Payment Pages */
+[data-theme="dark"] .payment-container,
+[data-theme="dark"] .payment-form-container {
+    background: var(--section-bg);
+}
+
+[data-theme="dark"] .payment-card,
+[data-theme="dark"] .payment-summary {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+/* Profile Page */
+[data-theme="dark"] .profile-container,
+[data-theme="dark"] .profile-section {
+    background: var(--section-bg);
+}
+
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .profile-info {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px var(--shadow-color);
+}
+
+/* Modals and Overlays */
+[data-theme="dark"] .modal,
+[data-theme="dark"] .modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 50px var(--shadow-color);
+}
+
+[data-theme="dark"] .modal-overlay {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Tables */
+[data-theme="dark"] .table,
+[data-theme="dark"] .data-table {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .table th,
+[data-theme="dark"] .table td {
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .table tbody tr:hover {
+    background: var(--card-hover-bg);
+}
+
+/* Search and Filter Components */
+[data-theme="dark"] .search-box,
+[data-theme="dark"] .filter-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] .search-box:focus,
+[data-theme="dark"] .search-box:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+[data-theme="dark"] .search-suggestions,
+[data-theme="dark"] .dropdown-menu {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 30px var(--shadow-color);
+}
+
+[data-theme="dark"] .search-suggestion:hover,
+[data-theme="dark"] .dropdown-item:hover {
+    background: var(--card-hover-bg);
+}
+
+/* Alerts and Notifications */
+[data-theme="dark"] .alert,
+[data-theme="dark"] .notification {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .alert-success {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+[data-theme="dark"] .alert-error {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: var(--error-color);
+    color: var(--error-color);
+}
+
+[data-theme="dark"] .alert-warning {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+/* Footer */
+[data-theme="dark"] .footer {
+    background: var(--footer-bg);
+    border-top: 1px solid var(--border-color);
+}
+
+/* Scrollbars */
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--card-bg);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Auto Theme (based on system preference) */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+        --primary-color: #4dabf7;
+        --primary-hover: #339af0;
+        --primary-light: rgba(77, 171, 247, 0.15);
+        --secondary-color: #adb5bd;
+        --secondary-light: rgba(173, 181, 189, 0.15);
+        --success-color: #51cf66;
+        --success-hover: #40c057;
+        --success-light: rgba(81, 207, 102, 0.15);
+        --error-color: #ff6b6b;
+        --error-light: rgba(255, 107, 107, 0.15);
+        --warning-color: #ffd43b;
+        --info-color: #22d3ee;
+        
+        --bg-color: #121212;
+        --card-bg: #1e1e1e;
+        --nav-bg: rgba(18, 18, 18, 0.95);
+        --footer-bg: #0d1117;
+        
+        --text-color: #e9ecef;
+        --text-secondary: #adb5bd;
+        --footer-text: #e9ecef;
+        --footer-text-secondary: rgba(233, 236, 239, 0.7);
+        
+        --border-color: #343a40;
+        --shadow-color: rgba(0, 0, 0, 0.3);
+        
+        --medical-blue: #4dabf7;
+        --medical-green: #51cf66;
+        --medical-red: #ff6b6b;
+        --medical-orange: #ffa94d;
+    }
+}
+
+/* Theme transition animations */
+* {
+    transition: background-color 0.3s ease, 
+                color 0.3s ease, 
+                border-color 0.3s ease,
+                box-shadow 0.3s ease;
+}
+
+/* Special theme-aware components */
+
+/* Scrollbar styling for dark theme */
+[data-theme="dark"] ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+    background: var(--card-bg);
+    border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-secondary);
+}
+
+/* Light theme scrollbar */
+:root:not([data-theme="dark"]) ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+:root:not([data-theme="dark"]) ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+:root:not([data-theme="dark"]) ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+:root:not([data-theme="dark"]) ::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
+
+/* Theme-specific enhancements */
+
+/* Glassmorphism effect for cards in dark theme */
+[data-theme="dark"] .feature-card,
+[data-theme="dark"] .doctor-card,
+[data-theme="dark"] .auth-card {
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced shadows for light theme */
+:root:not([data-theme="dark"]) .feature-card:hover,
+:root:not([data-theme="dark"]) .doctor-card:hover,
+:root:not([data-theme="dark"]) .auth-card {
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Theme toggle button animations */
+.theme-toggle {
+    position: relative;
+    overflow: hidden;
+}
+
+.theme-toggle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, var(--primary-color), transparent);
+    transition: all 0.5s ease;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    opacity: 0;
+}
+
+.theme-toggle:hover::before {
+    width: 100px;
+    height: 100px;
+    opacity: 0.1;
+}
+
+/* Special effects for hero section based on theme */
+[data-theme="dark"] .hero {
+    background: linear-gradient(135deg, 
+                var(--bg-color) 0%, 
+                rgba(77, 171, 247, 0.05) 50%,
+                var(--card-bg) 100%);
+}
+
+/* Time-based theme classes */
+.theme-morning {
+    --primary-color: #ff9500; /* Orange for morning */
+    --secondary-color: #ffcc02;
+}
+
+.theme-afternoon {
+    --primary-color: #007bff; /* Blue for afternoon */
+    --secondary-color: #17a2b8;
+}
+
+.theme-evening {
+    --primary-color: #6f42c1; /* Purple for evening */
+    --secondary-color: #e83e8c;
+}
+
+.theme-night {
+    --primary-color: #4dabf7; /* Light blue for night */
+    --secondary-color: #adb5bd;
+}
+
+/* Smooth theme transitions */
+.theme-transition * {
+    transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Custom properties for theme-aware animations */
+@keyframes fadeInTheme {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.theme-fade-in {
+    animation: fadeInTheme 0.6s ease-out;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --border-color: #000000;
+        --text-secondary: #000000;
+    }
+    
+    [data-theme="dark"] {
+        --border-color: #ffffff;
+        --text-secondary: #ffffff;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+        --card-bg: #ffffff;
+        --border-color: #000000;
+    }
+    
+    .theme-toggle,
+    .nav-toggle,
+    button {
+        display: none !important;
+    }
+}

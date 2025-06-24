@@ -1,0 +1,1818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | HealthCare+</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/dashboard-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/universal-navigation.css">
+    <style>
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 70px;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            position: fixed;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+        
+        .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .admin-details h3 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+        
+        .admin-details p {
+            margin: 0.25rem 0 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin: 0;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--primary-color-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 0.75rem;
+            width: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            background: var(--bg-color);
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Ensure smooth scrolling for content */
+        .main-content {
+            scroll-behavior: smooth;
+        }
+
+        /* Fix mobile responsiveness */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+        
+        .dashboard-header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .dashboard-header h1 {
+            margin: 0 0 0.5rem;
+            color: var(--text-color);
+            font-size: 2rem;
+        }
+        
+        .dashboard-header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        
+        .content-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .content-section h2 {
+            margin: 0 0 1.5rem;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-icon {
+            color: var(--primary-color);
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .data-table tbody tr:hover {
+            background: var(--primary-color-light);
+        }
+        
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-inactive {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-confirmed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .recent-activity {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .activity-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.3s ease;
+        }
+        
+        .activity-item:hover {
+            background: var(--primary-color-light);
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-content h4 {
+            margin: 0 0 0.25rem;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+        
+        .activity-content p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        .activity-time {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 1.5rem;
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+        
+        .search-bar input:focus + i {
+            color: var(--primary-color);
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 15px 12px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(51, 122, 183, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .advanced-search {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .search-suggestion {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+        
+        .search-suggestion:hover {
+            background: var(--primary-color-light);
+        }
+        
+        .search-suggestion:last-child {
+            border-bottom: none;
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            display: none;
+            transition: color 0.3s ease;
+        }
+        
+        .search-clear:hover {
+            color: var(--primary-color);
+        }
+        
+        .search-bar.has-text .search-clear {
+            display: block;
+        }
+        
+        .filter-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-controls .form-control {
+            min-width: 200px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .filter-controls .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 8px rgba(51, 122, 183, 0.2);
+        }
+        
+        .search-results-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .search-highlight {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.4), rgba(255, 235, 59, 0.3));
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #d97706;
+        }
+        
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .action-card {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .action-card:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color-light);
+        }
+        
+        .action-card i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        
+        .action-card h4 {
+            margin: 0 0 0.5rem;
+            color: var(--text-color);
+        }
+        
+        .action-card p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 85px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-color);
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: var(--error-light);
+            color: var(--error-color);
+        }
+
+        .modal-form {
+            padding: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .photo-upload-container {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .file-input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .photo-preview {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .photo-preview:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-light);
+        }
+
+        .photo-preview i {
+            font-size: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .photo-preview.has-image {
+            padding: 0;
+            border-style: solid;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Enhanced Messages Search Styling */
+        .messages-search-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .search-header h3 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .search-header h3 i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+        }
+
+        .search-stats {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .advanced-search-bar {
+            position: relative;
+        }
+
+        .main-search-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            align-items: stretch;
+        }
+
+        .search-input-wrapper {
+            flex: 1;
+            position: relative;
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .search-input-wrapper:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .search-icon {
+            padding: 0 1rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .search-input-wrapper:focus-within .search-icon {
+            color: var(--primary-color);
+        }
+
+        .advanced-search-input {
+            flex: 1;
+            padding: 1rem 0;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .advanced-search-input::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .clear-search-btn {
+            padding: 0 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .search-input-wrapper.has-text .clear-search-btn {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .clear-search-btn:hover {
+            color: var(--error-color);
+            transform: scale(1.1);
+        }
+
+        .search-action-btn {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .search-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .filter-chips-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .filter-chip-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            min-width: 60px;
+        }
+
+        .chip-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--primary-color);
+            background: var(--primary-color-light);
+            transform: translateY(-1px);
+        }
+
+        .filter-chip.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+        }
+
+        .filter-chip.priority-high {
+            border-color: #dc2626;
+            color: #dc2626;
+        }
+
+        .filter-chip.priority-high.active {
+            background: #dc2626;
+            color: white;
+        }
+
+        .filter-chip.priority-medium {
+            border-color: #d97706;
+            color: #d97706;
+        }
+
+        .filter-chip.priority-medium.active {
+            background: #d97706;
+            color: white;
+        }
+
+        .filter-chip.priority-normal {
+            border-color: #0277bd;
+            color: #0277bd;
+        }
+
+        .filter-chip.priority-normal.active {
+            background: #0277bd;
+            color: white;
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .search-suggestions.show {
+            display: block;
+        }
+
+        .suggestion-item {
+            padding: 0.75rem 1rem;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+
+        .suggestion-item:hover {
+            background: var(--primary-color-light);
+        }
+
+        .suggestion-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Messages section styling */
+        .notification-badge {
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 5px;
+            min-width: 18px;
+            text-align: center;
+            position: relative;
+            top: -2px;
+        }
+
+        /* Responsive design for search */
+        @media (max-width: 768px) {
+            .main-search-group {
+                flex-direction: column;
+            }
+            
+            .filter-chip-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .chip-buttons {
+                width: 100%;
+            }
+        }
+
+        .message-sender strong {
+            color: var(--text-color);
+            font-weight: 600;
+        }
+
+        .message-sender small {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+
+        .message-subject {
+            font-weight: 500;
+            color: var(--text-color);
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .priority-high {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .priority-medium {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .priority-normal {
+            background: #e0f2fe;
+            color: #0277bd;
+        }
+
+        .message-date {
+            font-size: 0.875rem;
+            color: var(--text-color);
+        }
+
+        .message-date small {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            border-radius: 6px;
+        }
+
+        .unread-message {
+            background: rgba(59, 130, 246, 0.05);
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .message-details {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        .detail-row label {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .message-content {
+            background: var(--bg-light);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary-color);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        @media (max-width: 768px) {
+
+            
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 1rem;
+            }
+
+            .modal-form {
+                padding: 1rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-heartbeat"></i>
+                <span>HealthCare+</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link" onclick="sessionStorage.setItem('allowHomeAccess', 'true'); sessionStorage.setItem('skipHomeRedirect', 'true');">Home</a>
+                <span class="nav-link" id="user-name">Admin Dashboard</span>
+                <button id="logout-btn" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="admin-info">
+                    <div class="admin-avatar" id="admin-avatar">
+                        AD
+                    </div>
+                    <div class="admin-details">
+                        <h3 id="admin-name">System Admin</h3>
+                        <p id="admin-role">Administrator</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="sidebar-menu">
+                    <li><a href="#dashboard" class="sidebar-link active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a></li>
+                    <li><a href="#doctors" class="sidebar-link" data-section="doctors">
+                        <i class="fas fa-user-md"></i> Doctors
+                    </a></li>
+                    <li><a href="#appointments" class="sidebar-link" data-section="appointments">
+                        <i class="fas fa-calendar-check"></i> Appointments
+                    </a></li>
+                    <li><a href="#patients" class="sidebar-link" data-section="patients">
+                        <i class="fas fa-users"></i> Patients
+                    </a></li>
+                    <li><a href="#staff" class="sidebar-link" data-section="staff">
+                        <i class="fas fa-user-tie"></i> Staff
+                    </a></li>
+                    <li><a href="#messages" class="sidebar-link" data-section="messages">
+                        <i class="fas fa-envelope"></i> Messages
+                        <span class="notification-badge" id="messages-badge" style="display: none;">0</span>
+                    </a></li>
+                    <li><a href="#reports" class="sidebar-link" data-section="reports">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a></li>
+                    <li><a href="#settings" class="sidebar-link" data-section="settings">
+                        <i class="fas fa-cogs"></i> Settings
+                    </a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="admin-video-background"></div>
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="dashboard-header">
+                    <h1>Welcome to Admin Dashboard</h1>
+                    <p>Manage your healthcare system efficiently from this central hub</p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-user-md"></i>
+                        <div class="stat-number" id="total-doctors">25</div>
+                        <div class="stat-label">Total Doctors</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-number" id="total-patients">1,248</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-check"></i>
+                        <div class="stat-number" id="total-appointments">342</div>
+                        <div class="stat-label">This Month</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-dollar-sign"></i>
+                        <div class="stat-number" id="total-revenue">$45,680</div>
+                        <div class="stat-label">Revenue</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="content-section">
+                    <h2><i class="fas fa-bolt section-icon"></i>Quick Actions</h2>
+                    <div class="quick-actions">
+                        <div class="action-card" onclick="adminDashboard.openAddDoctorModal()">
+                            <i class="fas fa-plus-circle"></i>
+                            <h4>Add Doctor</h4>
+                            <p>Register a new doctor</p>
+                        </div>
+                        <div class="action-card" onclick="adminDashboard.openAddStaffModal()">
+                            <i class="fas fa-user-plus"></i>
+                            <h4>Add Staff</h4>
+                            <p>Register new staff member</p>
+                        </div>
+                        <div class="action-card" onclick="adminDashboard.showSection('appointments')">
+                            <i class="fas fa-calendar-plus"></i>
+                            <h4>View Appointments</h4>
+                            <p>Manage all appointments</p>
+                        </div>
+                        <div class="action-card" onclick="adminDashboard.showSection('reports')">
+                            <i class="fas fa-chart-line"></i>
+                            <h4>Generate Report</h4>
+                            <p>Create system reports</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="content-section">
+                    <h2><i class="fas fa-clock section-icon"></i>Recent Activity</h2>
+                    <div class="recent-activity" id="recent-activity-list">
+                        <!-- Activity items will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Doctors Section -->
+            <section id="doctors-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-user-md section-icon"></i>Doctors Management</h2>
+                
+                <div class="filter-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="doctor-search" placeholder="Search by name, email, or specialty..." class="form-control">
+                        <button type="button" class="search-clear" onclick="adminDashboard.clearDoctorSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="search-suggestions" id="doctor-search-suggestions"></div>
+                    </div>
+                    <select id="doctor-specialty-filter" class="form-control specialty-dropdown">
+                        <option value="">All Specialties</option>
+                        <option value="cardiology">Cardiology</option>
+                        <option value="neurology">Neurology</option>
+                        <option value="pediatrics">Pediatrics</option>
+                        <option value="orthopedics">Orthopedics</option>
+                        <option value="dermatology">Dermatology</option>
+                        <option value="psychiatry">Psychiatry</option>
+                        <option value="general">General Medicine</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="adminDashboard.openAddDoctorModal()">
+                        <i class="fas fa-plus"></i> Add Doctor
+                    </button>
+                </div>
+                
+                <div class="search-results-count" id="doctor-search-results" style="display: none;"></div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Specialty</th>
+                                <th>Contact</th>
+                                <th>Experience</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="doctors-table-body">
+                            <!-- Doctors will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-calendar-check section-icon"></i>Appointments Management</h2>
+                
+                <div class="filter-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="appointment-search" placeholder="Search by patient name, doctor, or reference..." class="form-control">
+                        <button type="button" class="search-clear" onclick="adminDashboard.clearAppointmentSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="search-suggestions" id="appointment-search-suggestions"></div>
+                    </div>
+                    <select id="appointment-status-filter" class="form-control status-dropdown">
+                        <option value="">All Status</option>
+                        <option value="scheduled">Scheduled</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                        <option value="no_show">No Show</option>
+                    </select>
+                    <input type="date" id="appointment-date-filter" class="form-control" title="Filter by appointment date">
+                </div>
+                
+                <div class="search-results-count" id="appointment-search-results" style="display: none;"></div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointments-table-body">
+                            <!-- Appointments will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Patients Section -->
+            <section id="patients-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-users section-icon"></i>Patients Management</h2>
+                
+                <div class="filter-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="patient-search" placeholder="Search patients..." class="form-control">
+                        <button type="button" class="search-clear" onclick="adminDashboard.clearPatientSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="search-suggestions" id="patient-search-suggestions"></div>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Age</th>
+                                <th>Last Visit</th>
+                                <th>Total Visits</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patients-table-body">
+                            <!-- Patients will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Staff Section -->
+            <section id="staff-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-user-tie section-icon"></i>Staff Management</h2>
+                
+                <div class="filter-controls">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="staff-search" placeholder="Search staff..." class="form-control">
+                        <button type="button" class="search-clear" onclick="adminDashboard.clearStaffSearch()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        <div class="search-suggestions" id="staff-search-suggestions"></div>
+                    </div>
+                    <button class="btn btn-primary" onclick="adminDashboard.openAddStaffModal()">
+                        <i class="fas fa-plus"></i> Add Staff
+                    </button>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Role</th>
+                                <th>Contact</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-table-body">
+                            <!-- Staff will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-chart-bar section-icon"></i>Reports & Analytics</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-day"></i>
+                        <div class="stat-number" id="today-appointments">28</div>
+                        <div class="stat-label">Today's Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-plus"></i>
+                        <div class="stat-number" id="new-patients">15</div>
+                        <div class="stat-label">New Patients This Week</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-percentage"></i>
+                        <div class="stat-number" id="occupancy-rate">85%</div>
+                        <div class="stat-label">Occupancy Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <div class="stat-number" id="avg-rating">4.7</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Messages Section -->
+            <section id="messages-section" class="content-section" style="display: none;">
+                <div class="dashboard-header">
+                    <h1><i class="fas fa-envelope"></i> Contact Messages</h1>
+                    <p>Manage contact form submissions and customer inquiries</p>
+                </div>
+                
+                <div class="section-content">
+                    <!-- Message Stats -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="total-messages">0</h3>
+                                <p class="stat-label">Total Messages</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-envelope-open"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="unread-messages">0</h3>
+                                <p class="stat-label">Unread Messages</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-reply"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="replied-messages">0</h3>
+                                <p class="stat-label">Replied</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-number" id="today-messages">0</h3>
+                                <p class="stat-label">Today</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Enhanced Message Search & Filters -->
+                    <div class="messages-search-container">
+                        <div class="search-header">
+                            <h3><i class="fas fa-search"></i> Search & Filter Messages</h3>
+                            <div class="search-stats">
+                                <span id="search-results-count">Showing all messages</span>
+                            </div>
+                        </div>
+                        
+                        <div class="advanced-search-bar">
+                            <div class="main-search-group">
+                                <div class="search-input-wrapper">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <input type="text" id="message-search" placeholder="Search messages by sender, subject, or content..." class="advanced-search-input">
+                                    <button type="button" id="clear-search" class="clear-search-btn" onclick="adminDashboard.clearMessageSearch()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <button class="search-action-btn" onclick="adminDashboard.searchMessages()">
+                                    <i class="fas fa-search"></i>
+                                    <span>Search</span>
+                                </button>
+                            </div>
+
+                            
+                            <div class="search-suggestions" id="message-search-suggestions"></div>
+                        </div>
+                    </div>
+
+                    <!-- Messages Table -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-list"></i> Messages</h3>
+                            <button class="btn btn-primary" onclick="adminDashboard.refreshMessages()">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                        <div class="card-content">
+                            <div class="table-container">
+                                <table class="data-table" id="messages-table">
+                                    <thead>
+                                        <tr>
+                                            <th>From</th>
+                                            <th>Subject</th>
+                                            <th>Priority</th>
+                                            <th>Status</th>
+                                            <th>Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="messages-table-body">
+                                        <tr>
+                                            <td colspan="6" class="text-center">Loading messages...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-cogs section-icon"></i>System Settings</h2>
+                
+                <form id="settings-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="system-name">System Name</label>
+                            <input type="text" id="system-name" class="form-control" value="HealthCare+" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-email">Admin Email</label>
+                            <input type="email" id="admin-email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="system-timezone">Timezone</label>
+                            <select id="system-timezone" class="form-control time-dropdown">
+                                <option value="UTC">UTC</option>
+                                <option value="America/New_York">Eastern Time</option>
+                                <option value="America/Chicago">Central Time</option>
+                                <option value="America/Denver">Mountain Time</option>
+                                <option value="America/Los_Angeles">Pacific Time</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="appointment-duration">Default Appointment Duration (minutes)</label>
+                            <input type="number" id="appointment-duration" class="form-control" value="30" min="15" max="120">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Settings
+                    </button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Doctor Modal -->
+    <div id="add-doctor-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-md"></i> Add New Doctor</h3>
+                <button class="modal-close" onclick="adminDashboard.closeModal('add-doctor-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="add-doctor-form" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor-first-name">First Name *</label>
+                        <input type="text" id="doctor-first-name" name="first_name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor-last-name">Last Name *</label>
+                        <input type="text" id="doctor-last-name" name="last_name" required class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor-email">Email Address *</label>
+                        <input type="email" id="doctor-email" name="email" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor-phone">Phone Number *</label>
+                        <input type="tel" id="doctor-phone" name="phone" required class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor-specialty">Specialty *</label>
+                        <select id="doctor-specialty" name="specialty" required class="form-control specialty-dropdown">
+                            <option value="">Select Specialty</option>
+                            <option value="cardiology">Cardiology</option>
+                            <option value="neurology">Neurology</option>
+                            <option value="pediatrics">Pediatrics</option>
+                            <option value="orthopedics">Orthopedics</option>
+                            <option value="dermatology">Dermatology</option>
+                            <option value="psychiatry">Psychiatry</option>
+                            <option value="general">General Medicine</option>
+                            <option value="gynecology">Gynecology</option>
+                            <option value="urology">Urology</option>
+                            <option value="oncology">Oncology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor-experience">Years of Experience *</label>
+                        <input type="number" id="doctor-experience" name="experience" min="0" max="50" required class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="doctor-license">License Number *</label>
+                        <input type="text" id="doctor-license" name="license_number" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="doctor-fee">Consultation Fee ($) *</label>
+                        <input type="number" id="doctor-fee" name="consultation_fee" min="0" step="0.01" required class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="doctor-education">Education</label>
+                    <textarea id="doctor-education" name="education" class="form-control" placeholder="Medical degree, certifications, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="doctor-bio">Biography</label>
+                    <textarea id="doctor-bio" name="bio" class="form-control" placeholder="Professional background and expertise"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="doctor-profile-photo">Profile Photo</label>
+                    <div class="photo-upload-container">
+                        <input type="file" id="doctor-profile-photo" name="profile_photo" accept="image/*" class="file-input">
+                        <div class="photo-preview" id="doctor-photo-preview">
+                            <i class="fas fa-camera"></i>
+                            <span>Click to upload photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="adminDashboard.closeModal('add-doctor-modal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add Doctor
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Staff Modal -->
+    <div id="add-staff-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-tie"></i> Add New Staff Member</h3>
+                <button class="modal-close" onclick="adminDashboard.closeModal('add-staff-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="add-staff-form" class="modal-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-first-name">First Name *</label>
+                        <input type="text" id="staff-first-name" name="first_name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-last-name">Last Name *</label>
+                        <input type="text" id="staff-last-name" name="last_name" required class="form-control">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-email">Email Address *</label>
+                        <input type="email" id="staff-email" name="email" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-phone">Phone Number *</label>
+                        <input type="tel" id="staff-phone" name="phone" required class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-role">Role *</label>
+                        <select id="staff-role" name="role" required class="form-control status-dropdown">
+                            <option value="">Select Role</option>
+                            <option value="receptionist">Receptionist</option>
+                            <option value="nurse">Nurse</option>
+                            <option value="technician">Medical Technician</option>
+                            <option value="administrator">Administrator</option>
+                            <option value="pharmacist">Pharmacist</option>
+                            <option value="therapist">Therapist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-department">Department *</label>
+                        <select id="staff-department" name="department" required class="form-control filter-dropdown">
+                            <option value="">Select Department</option>
+                            <option value="administration">Administration</option>
+                            <option value="nursing">Nursing</option>
+                            <option value="laboratory">Laboratory</option>
+                            <option value="pharmacy">Pharmacy</option>
+                            <option value="radiology">Radiology</option>
+                            <option value="emergency">Emergency</option>
+                            <option value="outpatient">Outpatient</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="staff-employee-id">Employee ID *</label>
+                        <input type="text" id="staff-employee-id" name="employee_id" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="staff-hire-date">Hire Date *</label>
+                        <input type="date" id="staff-hire-date" name="hire_date" required class="form-control">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="staff-qualifications">Qualifications</label>
+                    <textarea id="staff-qualifications" name="qualifications" class="form-control" placeholder="Certifications, degrees, and qualifications"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="staff-profile-photo">Profile Photo</label>
+                    <div class="photo-upload-container">
+                        <input type="file" id="staff-profile-photo" name="profile_photo" accept="image/*" class="file-input">
+                        <div class="photo-preview" id="staff-photo-preview">
+                            <i class="fas fa-camera"></i>
+                            <span>Click to upload photo</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="adminDashboard.closeModal('add-staff-modal')">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-user-plus"></i> Add Staff Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/theme-manager.js"></script>
+    <script src="js/enhanced-animations.js"></script>
+    <script src="js/three-video-background.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/admin-dashboard.js"></script>
+    <script>
+        // Initialize Three.js video background
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof THREE !== 'undefined' && typeof HealthcareVideoBackground !== 'undefined') {
+                const videoContainer = document.getElementById('admin-video-background');
+                if (videoContainer) {
+                    new HealthcareVideoBackground(videoContainer);
+                }
+            }
+        });
+    </script>
+    <script src="js/universal-navigation.js"></script>
+</body>
+</html>

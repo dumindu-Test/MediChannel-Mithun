@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard | HealthCare+</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/themes.css">
+    <link rel="stylesheet" href="css/dashboard-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/universal-navigation.css">
+    <style>
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 70px;
+            overflow: hidden;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 0;
+            position: fixed;
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .sidebar-header {
+            padding: 0 1.5rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+        
+        .doctor-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .doctor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .doctor-details h3 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.1rem;
+        }
+        
+        .doctor-details p {
+            margin: 0.25rem 0 0;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+        }
+        
+        .sidebar-menu {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .sidebar-menu li {
+            margin: 0;
+        }
+        
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: var(--primary-color-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar-menu i {
+            margin-right: 0.75rem;
+            width: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            background: var(--bg-color);
+            height: calc(100vh - 70px);
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        /* Ensure smooth scrolling for content */
+        .main-content {
+            scroll-behavior: smooth;
+        }
+
+        /* Fix mobile responsiveness */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+        }
+        
+        .dashboard-header {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+        }
+        
+        .dashboard-header h1 {
+            margin: 0 0 0.5rem;
+            color: var(--text-color);
+            font-size: 2rem;
+        }
+        
+        .dashboard-header p {
+            margin: 0;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .stat-card i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+        
+        .content-section {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+        
+        .content-section h2 {
+            margin: 0 0 1.5rem;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-icon {
+            color: var(--primary-color);
+        }
+        
+        .appointment-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .appointment-card:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .appointment-time {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .appointment-status {
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-confirmed {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-completed {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        .patient-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .patient-detail {
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+        }
+        
+        .patient-detail i {
+            margin-right: 0.75rem;
+            color: var(--primary-color);
+            width: 16px;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .data-table th {
+            background: var(--bg-color);
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .data-table tbody tr:hover {
+            background: var(--primary-color-light);
+        }
+        
+        .weekly-schedule {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .schedule-day {
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            background: var(--bg-color);
+            transition: all 0.3s ease;
+        }
+        
+        .schedule-day:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .day-header {
+            margin-bottom: 1.5rem;
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .day-header h4 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.25rem;
+        }
+        
+        .day-date {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        
+        .schedule-slot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--card-bg);
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .schedule-slot:hover {
+            background: var(--primary-color-light);
+            border-color: var(--primary-color);
+        }
+        
+        .slot-time {
+            font-weight: 600;
+            color: var(--text-color);
+        }
+        
+        .slot-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .available {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .booked {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .no-slots {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 3rem 0;
+        }
+        
+        .schedule-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        #current-week {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.25rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-weight: 500;
+        }
+        
+        .search-bar {
+            position: relative;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+        
+        .search-bar input {
+            width: 100%;
+            padding: 12px 45px 12px 45px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1rem;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 15px rgba(51, 122, 183, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        
+        .search-bar i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            z-index: 2;
+            transition: color 0.3s ease;
+        }
+        
+        .search-bar input:focus ~ i {
+            color: var(--primary-color);
+        }
+        
+        .search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 18px;
+            transition: color 0.3s ease;
+            z-index: 2;
+            display: none;
+        }
+        
+        .search-clear:hover {
+            color: var(--primary-color);
+        }
+        
+        .search-bar.has-text .search-clear {
+            display: block;
+        }
+        
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .search-suggestion {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--border-color);
+            transition: background 0.2s ease;
+        }
+        
+        .search-suggestion:hover {
+            background: var(--primary-color-light);
+        }
+        
+        .search-suggestion:last-child {
+            border-bottom: none;
+        }
+        
+        .search-results-count {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        
+        .search-highlight {
+            background: rgba(255, 193, 7, 0.3);
+            padding: 1px 3px;
+            border-radius: 3px;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 1.5rem;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--danger-color);
+            color: white;
+        }
+        
+        .modal-body {
+            padding: 2rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        /* Profile Photo Styling */
+        .profile-photo-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .photo-container {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .profile-picture-wrapper {
+            position: relative;
+        }
+
+        .profile-picture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 4px solid var(--primary-color);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-picture:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .profile-placeholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .photo-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .profile-picture:hover .photo-overlay {
+            opacity: 1;
+        }
+
+        .photo-overlay i {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .photo-info h3 {
+            margin: 0 0 0.5rem;
+            color: var(--text-color);
+            font-size: 1.5rem;
+        }
+
+        .photo-info p {
+            margin: 0 0 1rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Enhanced Profile Form Styling */
+        .profile-form {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .form-section h3 {
+            margin: 0 0 1.5rem;
+            color: var(--text-color);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .form-section h3 i {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .btn-outline-primary {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .weekly-schedule {
+                grid-template-columns: 1fr;
+            }
+            
+            .patient-info {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 85px;
+            left: 15px;
+            z-index: 1001;
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body data-theme="dark">
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-heartbeat"></i>
+                <span>HealthCare+</span>
+            </div>
+            <div class="nav-menu">
+                <a href="index.html" class="nav-link" onclick="sessionStorage.setItem('allowHomeAccess', 'true'); sessionStorage.setItem('skipHomeRedirect', 'true');">Home</a>
+                <a href="doctor-appointments.html" class="nav-link">Appointments</a>
+                <span class="nav-link" id="user-name">Doctor Dashboard</span>
+                <button id="logout-btn" class="btn btn-outline">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Toggle -->
+
+
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="doctor-info">
+                    <div class="doctor-avatar" id="doctor-avatar">
+                        SJ
+                    </div>
+                    <div class="doctor-details">
+                        <h3 id="doctor-name">Dr. Sarah Johnson</h3>
+                        <p id="doctor-specialty">Cardiologist</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul class="sidebar-menu">
+                    <li><a href="#dashboard" class="sidebar-link active" data-section="dashboard">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a></li>
+                    <li><a href="#schedule" class="sidebar-link" data-section="schedule">
+                        <i class="fas fa-calendar"></i> My Schedule
+                    </a></li>
+                    <li><a href="#appointments" class="sidebar-link" data-section="appointments">
+                        <i class="fas fa-calendar-check"></i> Appointments
+                    </a></li>
+                    <li><a href="#patients" class="sidebar-link" data-section="patients">
+                        <i class="fas fa-users"></i> My Patients
+                    </a></li>
+                    <li><a href="#availability" class="sidebar-link" data-section="availability">
+                        <i class="fas fa-clock"></i> Set Availability
+                    </a></li>
+                    <li><a href="#profile" class="sidebar-link" data-section="profile">
+                        <i class="fas fa-user-md"></i> My Profile
+                    </a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div id="doctor-video-background"></div>
+            <!-- Dashboard Section -->
+            <section id="dashboard-section" class="content-section active">
+                <div class="dashboard-header">
+                    <h1>Welcome back, <span id="dashboard-doctor-name">Dr. Sarah Johnson</span>!</h1>
+                    <p>Here's your practice overview for today, <span id="current-date"></span></p>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <i class="fas fa-calendar-day"></i>
+                        <div class="stat-number" id="today-appointments">12</div>
+                        <div class="stat-label">Today's Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <div class="stat-number" id="total-patients">248</div>
+                        <div class="stat-label">Total Patients</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-clock"></i>
+                        <div class="stat-number" id="upcoming-count">5</div>
+                        <div class="stat-label">Upcoming Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <div class="stat-number" id="doctor-rating">4.9</div>
+                        <div class="stat-label">Patient Rating</div>
+                    </div>
+                </div>
+
+                <!-- Today's Appointments -->
+                <div class="content-section">
+                    <h2><i class="fas fa-calendar-day section-icon"></i>Today's Appointments</h2>
+                    <div id="today-appointments-list">
+                        <!-- Appointments will be loaded dynamically -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section id="schedule-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-calendar section-icon"></i>Weekly Schedule</h2>
+                <div class="schedule-controls">
+                    <button class="btn btn-secondary" id="prev-week-btn">
+                        <i class="fas fa-chevron-left"></i> Previous Week
+                    </button>
+                    <span id="current-week"></span>
+                    <button class="btn btn-secondary" id="next-week-btn">
+                        Next Week <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div class="weekly-schedule" id="weekly-schedule-grid">
+                    <!-- Schedule will be loaded dynamically -->
+                </div>
+            </section>
+
+            <!-- Appointments Section -->
+            <section id="appointments-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-calendar-check section-icon"></i>All Appointments</h2>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Patient</th>
+                                <th>Contact</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="appointments-table-body">
+                            <!-- Appointments will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Patients Section -->
+            <section id="patients-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-users section-icon"></i>My Patients</h2>
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="patient-search" placeholder="Search patients by name, phone, or email..." class="form-control">
+                    <button type="button" class="search-clear" onclick="doctorDashboard.clearPatientSearch()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div class="search-suggestions" id="patient-search-suggestions"></div>
+                </div>
+                
+                <div class="search-results-count" id="patient-search-results" style="display: none;"></div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Last Visit</th>
+                                <th>Total Visits</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="patients-table-body">
+                            <!-- Patients will be loaded dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Availability Section -->
+            <section id="availability-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-clock section-icon"></i>Set Availability</h2>
+                <div class="availability-form">
+                    <div class="form-group">
+                        <label for="availability-date">Select Date:</label>
+                        <input type="date" id="availability-date" class="form-control">
+                    </div>
+                    <div id="availability-slots">
+                        <!-- Time slots will be loaded dynamically -->
+                    </div>
+                    <button class="btn btn-primary" id="save-availability-btn">
+                        <i class="fas fa-save"></i> Save Availability
+                    </button>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile-section" class="content-section" style="display: none;">
+                <h2><i class="fas fa-user-md section-icon"></i>My Profile</h2>
+                
+                <!-- Profile Photo Section -->
+                <div class="profile-photo-section">
+                    <div class="photo-container">
+                        <div class="profile-picture-wrapper">
+                            <div class="profile-picture" id="profile-picture">
+                                <img id="profile-image" src="" alt="Profile Photo" style="display: none;">
+                                <div class="profile-placeholder" id="profile-placeholder">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <div class="photo-overlay">
+                                    <i class="fas fa-camera"></i>
+                                    <span>Change Photo</span>
+                                </div>
+                            </div>
+                            <input type="file" id="profile-photo-input" accept="image/*" style="display: none;">
+                        </div>
+                        <div class="photo-info">
+                            <h3 id="profile-display-name">Dr. Sarah Johnson</h3>
+                            <p id="profile-display-specialty">Cardiologist</p>
+                            <button class="btn btn-outline-primary btn-sm" id="change-photo-btn">
+                                <i class="fas fa-camera"></i> Change Photo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile Form -->
+                <form id="profile-form" class="profile-form">
+                    <div class="form-section">
+                        <h3><i class="fas fa-user"></i> Personal Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="profile-name">Full Name</label>
+                                <input type="text" id="profile-name" class="form-control" required placeholder="Dr. John Doe">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-specialty">Primary Specialty</label>
+                                <select id="profile-specialty" class="form-control specialty-dropdown" required>
+                                    <option value="">Select Specialty</option>
+                                    <option value="Cardiology">Cardiology</option>
+                                    <option value="Dermatology">Dermatology</option>
+                                    <option value="Emergency Medicine">Emergency Medicine</option>
+                                    <option value="Family Medicine">Family Medicine</option>
+                                    <option value="Internal Medicine">Internal Medicine</option>
+                                    <option value="Neurology">Neurology</option>
+                                    <option value="Orthopedics">Orthopedics</option>
+                                    <option value="Pediatrics">Pediatrics</option>
+                                    <option value="Psychiatry">Psychiatry</option>
+                                    <option value="Radiology">Radiology</option>
+                                    <option value="Surgery">Surgery</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-subspecialty">Sub-specialty (Optional)</label>
+                                <input type="text" id="profile-subspecialty" class="form-control" placeholder="e.g., Interventional Cardiology">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-license">Medical License Number</label>
+                                <input type="text" id="profile-license" class="form-control" required placeholder="MD123456">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-phone"></i> Contact Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="profile-phone">Phone Number</label>
+                                <input type="tel" id="profile-phone" class="form-control" required placeholder="+1 (555) 123-4567">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-email">Email Address</label>
+                                <input type="email" id="profile-email" class="form-control" required placeholder="doctor@example.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-office-address">Office Address</label>
+                                <input type="text" id="profile-office-address" class="form-control" placeholder="123 Medical Center Blvd">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-hospital">Hospital/Clinic Affiliation</label>
+                                <input type="text" id="profile-hospital" class="form-control" placeholder="City General Hospital">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-graduation-cap"></i> Professional Details</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="profile-experience">Years of Experience</label>
+                                <input type="number" id="profile-experience" class="form-control" required min="0" max="50" placeholder="10">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-qualification">Primary Qualification</label>
+                                <input type="text" id="profile-qualification" class="form-control" required placeholder="MD, Harvard Medical School">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-certifications">Certifications</label>
+                                <input type="text" id="profile-certifications" class="form-control" placeholder="Board Certified in Cardiology">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-languages">Languages Spoken</label>
+                                <input type="text" id="profile-languages" class="form-control" placeholder="English, Spanish, French">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-stethoscope"></i> Practice Information</h3>
+                        <div class="form-group">
+                            <label for="profile-bio">Professional Bio</label>
+                            <textarea id="profile-bio" class="form-control" rows="5" placeholder="Tell patients about your experience, approach to care, and what makes you unique as a healthcare provider..."></textarea>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="profile-consultation-fee">Consultation Fee ($)</label>
+                                <input type="number" id="profile-consultation-fee" class="form-control" min="0" step="0.01" placeholder="150.00">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-follow-up-fee">Follow-up Fee ($)</label>
+                                <input type="number" id="profile-follow-up-fee" class="form-control" min="0" step="0.01" placeholder="100.00">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="profile-services">Services Offered</label>
+                            <textarea id="profile-services" class="form-control" rows="3" placeholder="List the services you offer, separated by commas (e.g., General Consultation, ECG, Stress Testing)"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3><i class="fas fa-calendar-alt"></i> Availability Settings</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="profile-typical-hours">Typical Working Hours</label>
+                                <input type="text" id="profile-typical-hours" class="form-control" placeholder="Monday-Friday: 9:00 AM - 5:00 PM">
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-appointment-duration">Default Appointment Duration (minutes)</label>
+                                <select id="profile-appointment-duration" class="form-control time-dropdown">
+                                    <option value="15">15 minutes</option>
+                                    <option value="30" selected>30 minutes</option>
+                                    <option value="45">45 minutes</option>
+                                    <option value="60">60 minutes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Update Profile
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="reset-profile-btn">
+                            <i class="fas fa-undo"></i> Reset Changes
+                        </button>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- Patient Details Modal -->
+    <div id="patient-details-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Patient Details</h3>
+                <button class="modal-close" onclick="closeModal('patient-details-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="patient-details-content">
+                <!-- Patient details content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Medical Record Modal -->
+    <div id="add-record-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Medical Record</h3>
+                <button class="modal-close" onclick="closeModal('add-record-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-record-form">
+                    <input type="hidden" id="record-patient-id">
+                    <div class="form-group">
+                        <label for="record-type">Record Type</label>
+                        <select id="record-type" class="form-control status-dropdown" required>
+                            <option value="">Select type...</option>
+                            <option value="diagnosis">Diagnosis</option>
+                            <option value="prescription">Prescription</option>
+                            <option value="lab_result">Lab Result</option>
+                            <option value="procedure">Procedure</option>
+                            <option value="note">General Note</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="record-title">Title</label>
+                        <input type="text" id="record-title" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="record-description">Description</label>
+                        <textarea id="record-description" class="form-control" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="record-date">Date</label>
+                        <input type="datetime-local" id="record-date" class="form-control" required>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('add-record-modal')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Record
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Details Modal -->
+    <div id="schedule-details-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Schedule Details</h3>
+                <button class="modal-close" onclick="closeModal('schedule-details-modal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="schedule-details-content">
+                <!-- Schedule details content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/theme-manager.js"></script>
+    <script src="js/enhanced-animations.js"></script>
+    <script src="js/three-video-background.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/doctor-dashboard.js"></script>
+    <script>
+        // Initialize Three.js video background
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof THREE !== 'undefined' && typeof HealthcareVideoBackground !== 'undefined') {
+                const videoContainer = document.getElementById('doctor-video-background');
+                if (videoContainer) {
+                    new HealthcareVideoBackground(videoContainer);
+                }
+            }
+        });
+    </script>
+    <script src="js/universal-navigation.js"></script>
+</body>
+</html>
