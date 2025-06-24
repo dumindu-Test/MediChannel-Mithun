@@ -109,8 +109,10 @@ HealthCare+ is a comprehensive web-based e-channelling (appointment booking) sys
   - Created user, patient, and doctor tables with proper relationships
   - Added comprehensive authentication JavaScript client with form validation
   - System supports role-based authentication (patient, doctor, admin)
-  - Login credentials: dr.perera@healthcareplus.lk and patient@healthcareplus.lk (any password works for demo)
+  - Implemented secure password hashing using PHP's PASSWORD_DEFAULT
+  - Login credentials: dr.perera@healthcareplus.lk and patient@healthcareplus.lk (password: test123)
   - Full session management with automatic login state verification
+  - New user registration creates properly hashed passwords in MySQL database
 
 - June 24, 2025: Removed all database connections and converted to mock data system
   - Removed PostgreSQL database, schema.sql, and php/database.php

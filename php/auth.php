@@ -82,12 +82,12 @@ function handleLogin($db, $input) {
     
     $user = $users[0];
     
-    // For demo purposes, accept any password (in production, use password_verify)
-    // if (!password_verify($password, $user['password_hash'])) {
-    //     http_response_code(401);
-    //     echo json_encode(['error' => 'Invalid credentials']);
-    //     return;
-    // }
+    // Verify password hash
+    if (!password_verify($password, $user['password_hash'])) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid credentials']);
+        return;
+    }
     
     // Create session
     session_start();
@@ -144,7 +144,7 @@ function handleRegister($db, $input) {
     // Create username from email
     $username = explode('@', $email)[0];
     
-    // Hash password (for demo, using a simple hash)
+    // Hash password securely
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
     
     try {
