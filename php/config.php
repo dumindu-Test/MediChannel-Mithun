@@ -86,7 +86,7 @@ function initializeSessionConfig() {
     ini_set('session.cookie_domain', '');
 }
 
-// Mock Data Storage Class (Static Demo Mode)
+// Mock Data Storage Class (For Doctors Data Only - Authentication uses MySQL)
 class MockDataStorage {
     private static $instance = null;
     private $doctors = [];

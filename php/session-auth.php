@@ -31,27 +31,49 @@ if ($action === '1' || $action === 'check_auth') {
 function checkAuthentication() {
     header('Content-Type: application/json');
     
-    // For demo environment, provide mock authentication
-    if (isset($_SESSION['user_id'])) {
-        $user = $_SESSION['user'];
-    } else {
-        // Create mock user session for demo
-        $user = [
-            'id' => 1,
-            'username' => 'demo_user',
-            'email' => 'demo@healthcareplus.com',
-            'role' => 'patient',
-            'first_name' => 'Demo',
-            'last_name' => 'User'
-        ];
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user'] = $user;
+    // Check for valid session from MySQL authentication
+    if (!isset($_SESSION['user_id'])) {
+        echo json_encode([
+            'authenticated' => false,
+            'user' => null
+        ]);
+        return;
     }
     
-    echo json_encode([
-        'authenticated' => true,
-        'user' => $user
-    ]);
+    // Verify user still exists in database
+    try {
+        require_once 'database.php';
+        $db = Database::getInstance();
+        $users = $db->query("SELECT * FROM users WHERE id = ? AND is_active = 1", [$_SESSION['user_id']]);
+        
+        if (empty($users)) {
+            session_destroy();
+            echo json_encode([
+                'authenticated' => false,
+                'user' => null
+            ]);
+            return;
+        }
+        
+        $user = $users[0];
+        echo json_encode([
+            'authenticated' => true,
+            'user' => [
+                'id' => $user['id'],
+                'email' => $user['email'],
+                'name' => $user['first_name'] . ' ' . $user['last_name'],
+                'role' => $user['role'],
+                'first_name' => $user['first_name'],
+                'last_name' => $user['last_name']
+            ]
+        ]);
+    } catch (Exception $e) {
+        error_log("Session verification error: " . $e->getMessage());
+        echo json_encode([
+            'authenticated' => false,
+            'user' => null
+        ]);
+    }
 }
 
 function handleAuthRequest() {
@@ -75,39 +97,12 @@ function handleAuthRequest() {
 function handleLogin($input) {
     header('Content-Type: application/json');
     
-    $email = $input['email'] ?? '';
-    $password = $input['password'] ?? '';
-    $role = $input['role'] ?? 'patient';
-    
-    if (empty($email) || empty($password)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Email and password required']);
-        return;
-    }
-    
-    // For demo, accept any valid email format
-    if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $user = [
-            'id' => 1,
-            'username' => explode('@', $email)[0],
-            'email' => $email,
-            'role' => $role,
-            'first_name' => 'Demo',
-            'last_name' => 'User'
-        ];
-        
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user'] = $user;
-        
-        echo json_encode([
-            'success' => true,
-            'user' => $user,
-            'redirect' => getDashboardUrl($role)
-        ]);
-    } else {
-        http_response_code(401);
-        echo json_encode(['error' => 'Invalid credentials']);
-    }
+    // Redirect to proper MySQL authentication
+    http_response_code(302);
+    echo json_encode([
+        'error' => 'Please use /php/auth.php for authentication',
+        'redirect' => '/php/auth.php'
+    ]);
 }
 
 function handleLogout() {

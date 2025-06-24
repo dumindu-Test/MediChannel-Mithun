@@ -49,15 +49,22 @@ class AdminDashboard {
     }
 
     async checkAuthentication() {
-        // Use demo data for demo environment - no automatic redirections
-        this.currentUser = {
-            id: 1,
-            first_name: 'Admin',
-            last_name: 'User',
-            email: 'admin@healthcareplus.com',
-            role: 'admin'
-        };
-        this.updateUserDisplay();
+        try {
+            const response = await fetch('/php/auth.php?action=verify');
+            const data = await response.json();
+            
+            if (data.authenticated && data.user.role === 'admin') {
+                this.currentUser = data.user;
+                this.updateUserDisplay();
+            } else {
+                // Redirect non-admin users to login
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        } catch (error) {
+            console.error('Authentication check failed:', error);
+            window.location.href = 'login.html';
+        }
     }
 
     updateUserDisplay() {

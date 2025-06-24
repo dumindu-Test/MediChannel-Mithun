@@ -175,38 +175,54 @@ class EChannellingSignIn {
     }
 
     async authenticateUser(credentials) {
-        // Simulate authentication
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                // Mock authentication logic
-                if (credentials.identifier && credentials.password) {
-                    // Store user data in session
-                    const userData = {
-                        identifier: credentials.identifier,
-                        loginTime: new Date().toISOString()
-                    };
-                    
-                    // Simulate different user types
-                    if (credentials.identifier.includes('admin')) {
-                        userData.role = 'admin';
+        // Use MySQL authentication API
+        try {
+            const response = await fetch('/php/auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'login',
+                    email: credentials.identifier,
+                    password: credentials.password
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                // Store user data in session
+                const userData = {
+                    ...data.user,
+                    loginTime: new Date().toISOString()
+                };
+                
+                // Set redirect based on role
+                switch(data.user.role) {
+                    case 'admin':
                         userData.redirect = 'admin-dashboard.html';
-                    } else if (credentials.identifier.includes('doctor')) {
-                        userData.role = 'doctor';
+                        break;
+                    case 'doctor':
                         userData.redirect = 'doctor-dashboard.html';
-                    } else {
-                        userData.role = 'patient';
+                        break;
+                    case 'patient':
                         userData.redirect = 'patient-dashboard.html';
-                    }
-                    
-                    // Store in session
-                    sessionStorage.setItem('echannelling_user', JSON.stringify(userData));
-                    
-                    resolve(userData);
-                } else {
-                    reject(new Error('Please enter valid credentials'));
+                        break;
+                    default:
+                        userData.redirect = 'patient-dashboard.html';
                 }
-            }, 1500);
-        });
+                
+                // Store in session
+                sessionStorage.setItem('echannelling_user', JSON.stringify(userData));
+                
+                return userData;
+            } else {
+                throw new Error(data.error || 'Invalid credentials');
+            }
+        } catch (error) {
+            throw new Error('Authentication failed. Please check your credentials.');
+        }
     }
 
     setLoadingState(loading) {

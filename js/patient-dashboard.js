@@ -9,10 +9,42 @@ class PatientDashboard {
     }
 
     initializeDashboard() {
+        this.checkAuthentication();
         this.setupNavigation();
         this.loadPatientData();
         this.setupQuickActions();
         this.setupTableActions();
+    }
+
+    async checkAuthentication() {
+        try {
+            const response = await fetch('/php/auth.php?action=verify');
+            const data = await response.json();
+            
+            if (data.authenticated && data.user.role === 'patient') {
+                this.currentUser = data.user;
+                this.updateUserDisplay();
+            } else {
+                // Redirect non-patient users to login
+                localStorage.removeItem('currentUser');
+                window.location.href = 'login.html';
+            }
+        } catch (error) {
+            console.error('Authentication check failed:', error);
+            window.location.href = 'login.html';
+        }
+    }
+
+    updateUserDisplay() {
+        if (this.currentUser) {
+            // Update user information in the dashboard
+            const userNameElements = document.querySelectorAll('.user-name, #patient-name');
+            userNameElements.forEach(element => {
+                if (element) {
+                    element.textContent = this.currentUser.name || `${this.currentUser.first_name} ${this.currentUser.last_name}`;
+                }
+            });
+        }
     }
 
     setupNavigation() {
