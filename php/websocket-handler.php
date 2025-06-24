@@ -5,13 +5,13 @@
  */
 
 require_once 'config.php';
-require_once 'database.php';
+require_once 'mock-data.php';
 
 class RealTimeHandler {
     private $db;
     
     public function __construct() {
-        $this->db = Database::getInstance();
+        // Mock implementation - no database required
     }
     
     public function handleSSE() {
@@ -46,7 +46,7 @@ class RealTimeHandler {
     private function checkForUpdates() {
         try {
             // Get recent appointments (last 5 minutes)
-            $recent_appointments = $this->db->fetchAll(
+            $recent_appointments = // Database removedfetchAll(
                 "SELECT a.*, u.first_name, u.last_name 
                  FROM appointments a 
                  JOIN patients p ON a.patient_id = p.id 
@@ -76,13 +76,13 @@ class RealTimeHandler {
     public function broadcastUpdate($type, $data) {
         // Store update in database for SSE clients to pick up
         try {
-            $this->db->query(
+            // Database removedquery(
                 "INSERT INTO realtime_updates (update_type, update_data, created_at) VALUES (?, ?, NOW())",
                 [$type, json_encode($data)]
             );
             
             // Clean old updates (older than 1 hour)
-            $this->db->query(
+            // Database removedquery(
                 "DELETE FROM realtime_updates WHERE created_at < NOW() - INTERVAL '1 hour'"
             );
             

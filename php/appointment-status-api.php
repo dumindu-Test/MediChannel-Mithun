@@ -5,7 +5,7 @@
  */
 
 require_once 'config.php';
-require_once 'database.php';
+require_once 'mock-data.php';
 require_once 'websocket-handler.php';
 require_once 'performance-optimization.php';
 
@@ -20,7 +20,7 @@ class AppointmentStatusAPI {
     private $realTimeHandler;
     
     public function __construct() {
-        $this->db = Database::getInstance();
+        $this->db = // Database removed - using mock datagetInstance();
         $this->realTimeHandler = new RealTimeHandler();
     }
     
@@ -94,7 +94,7 @@ class AppointmentStatusAPI {
             
             $sql .= " ORDER BY a.appointment_date DESC, a.appointment_time DESC";
             
-            $appointments = $this->db->fetchAll($sql, $params);
+            $appointments = // Database removedfetchAll($sql, $params);
             
             // Add real-time status indicators
             foreach ($appointments as &$appointment) {
@@ -130,7 +130,7 @@ class AppointmentStatusAPI {
             }
             
             // Validate status transition
-            $current_appointment = $this->db->fetchOne(
+            $current_appointment = // Database removedfetchOne(
                 "SELECT * FROM appointments WHERE id = ?",
                 [$appointment_id]
             );
@@ -144,9 +144,9 @@ class AppointmentStatusAPI {
             }
             
             // Update appointment status
-            $this->db->beginTransaction();
+            // Database removedbeginTransaction();
             
-            $updated_rows = $this->db->update(
+            $updated_rows = // Database removedupdate(
                 "UPDATE appointments SET status = ?, notes = ?, updated_at = NOW() WHERE id = ?",
                 [$new_status, $notes, $appointment_id]
             );
@@ -156,12 +156,12 @@ class AppointmentStatusAPI {
             }
             
             // Log status change
-            $this->db->query(
+            // Database removedquery(
                 "INSERT INTO appointment_status_log (appointment_id, old_status, new_status, changed_by, changed_at, notes) VALUES (?, ?, ?, ?, NOW(), ?)",
                 [$appointment_id, $current_appointment['status'], $new_status, $user_id, $notes]
             );
             
-            $this->db->commit();
+            // Database removedcommit();
             
             // Broadcast real-time update
             $updated_appointment = $this->getAppointmentDetails($appointment_id);
@@ -181,7 +181,7 @@ class AppointmentStatusAPI {
             ]);
             
         } catch (Exception $e) {
-            $this->db->rollback();
+            // Database removedrollback();
             http_response_code(400);
             echo json_encode(['error' => $e->getMessage()]);
         }
@@ -280,7 +280,7 @@ class AppointmentStatusAPI {
     }
     
     private function getAppointmentDetails($appointment_id) {
-        return $this->db->fetchOne("
+        return // Database removedfetchOne("
             SELECT 
                 a.*,
                 pd.first_name as patient_name,
@@ -300,7 +300,7 @@ class AppointmentStatusAPI {
 
 // Create status log table if it doesn't exist
 try {
-    $db = Database::getInstance();
+    $db = // Database removed - using mock datagetInstance();
     $db->query("CREATE TABLE IF NOT EXISTS appointment_status_log (
         id SERIAL PRIMARY KEY,
         appointment_id INTEGER REFERENCES appointments(id) ON DELETE CASCADE,

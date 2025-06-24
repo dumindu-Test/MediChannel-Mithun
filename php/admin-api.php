@@ -5,7 +5,7 @@
  */
 
 require_once 'config.php';
-require_once 'database.php';
+require_once 'mock-data.php';
 
 setCORSHeaders();
 
@@ -26,7 +26,7 @@ class AdminAPI {
     
     public function __construct($user) {
         $this->mockStorage = MockDataStorage::getInstance();
-        $this->db = Database::getInstance();
+        $this->db = // Database removed - using mock datagetInstance();
         $this->currentUser = $user;
     }
     
@@ -288,7 +288,7 @@ class AdminAPI {
                     WHERE u.role IN ('admin', 'staff')
                     ORDER BY u.first_name, u.last_name";
             
-            $staff = $this->db->fetchAll($sql);
+            $staff = // Database removedfetchAll($sql);
             
             sendResponse([
                 'success' => true,
@@ -491,7 +491,7 @@ class AdminAPI {
                     LEFT JOIN staff s ON u.id = s.user_id 
                     WHERE u.id = ? AND u.role IN ('admin', 'staff')";
             
-            $staff = $this->db->fetchOne($sql, [$staffId]);
+            $staff = // Database removedfetchOne($sql, [$staffId]);
             
             if (!$staff) {
                 sendResponse(['error' => 'Staff member not found'], 404);
@@ -555,7 +555,7 @@ class AdminAPI {
             }
             
             // Create user record
-            $this->db->beginTransaction();
+            // Database removedbeginTransaction();
             
             $userSql = "INSERT INTO users (username, email, password_hash, role, first_name, last_name, phone, is_active) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -564,7 +564,7 @@ class AdminAPI {
             $firstName = $nameParts[0];
             $lastName = $nameParts[1] ?? '';
             
-            $userId = $this->db->insert($userSql, [
+            $userId = // Database removedinsert($userSql, [
                 strtolower(str_replace(' ', '.', $staffData['name'])),
                 $staffData['email'],
                 password_hash('defaultpassword123', PASSWORD_DEFAULT),
@@ -577,14 +577,14 @@ class AdminAPI {
             
             // Create staff record
             $staffSql = "INSERT INTO staff (user_id, department, hire_date, employee_id) VALUES (?, ?, ?, ?)";
-            $this->db->insert($staffSql, [
+            // Database removedinsert($staffSql, [
                 $userId,
                 $staffData['department'],
                 $staffData['hire_date'],
                 'EMP' . str_pad($userId, 3, '0', STR_PAD_LEFT)
             ]);
             
-            $this->db->commit();
+            // Database removedcommit();
             
             if ($userId) {
                 $this->logActivity([
@@ -600,7 +600,7 @@ class AdminAPI {
                     'staff_id' => $userId
                 ]);
             } else {
-                $this->db->rollback();
+                // Database removedrollback();
                 sendResponse(['error' => 'Failed to add staff member'], 500);
             }
             
@@ -656,7 +656,7 @@ class AdminAPI {
             }
             
             // Update user and staff records
-            $this->db->beginTransaction();
+            // Database removedbeginTransaction();
             
             $nameParts = explode(' ', $staffData['name'], 2);
             $firstName = $nameParts[0];
@@ -664,7 +664,7 @@ class AdminAPI {
             
             // Update user table
             $userSql = "UPDATE users SET first_name = ?, last_name = ?, email = ?, phone = ?, role = ?, is_active = ?, updated_at = NOW() WHERE id = ?";
-            $this->db->update($userSql, [
+            // Database removedupdate($userSql, [
                 $firstName,
                 $lastName,
                 $staffData['email'],
@@ -676,13 +676,13 @@ class AdminAPI {
             
             // Update staff table
             $staffSql = "UPDATE staff SET department = ?, hire_date = ?, updated_at = NOW() WHERE user_id = ?";
-            $updated = $this->db->update($staffSql, [
+            $updated = // Database removedupdate($staffSql, [
                 $staffData['department'],
                 $staffData['hire_date'],
                 $staffId
             ]);
             
-            $this->db->commit();
+            // Database removedcommit();
             
             if ($updated) {
                 $this->logActivity([
@@ -727,7 +727,7 @@ class AdminAPI {
                     FROM users u 
                     WHERE u.id = ? AND u.role IN ('admin', 'staff')";
             
-            $staff = $this->db->fetchOne($sql, [$staffId]);
+            $staff = // Database removedfetchOne($sql, [$staffId]);
             
             if (!$staff) {
                 sendResponse(['error' => 'Staff member not found'], 404);
@@ -738,7 +738,7 @@ class AdminAPI {
             
             // Update staff status
             $updateSql = "UPDATE users SET is_active = ?, updated_at = NOW() WHERE id = ?";
-            $updated = $this->db->update($updateSql, [$newStatus, $staffId]);
+            $updated = // Database removedupdate($updateSql, [$newStatus, $staffId]);
             
             if ($updated) {
                 $statusText = $newStatus ? 'activated' : 'deactivated';
@@ -1120,14 +1120,14 @@ class AdminAPI {
             }
 
             // Check if email already exists
-            $existingUser = $this->db->fetchOne("SELECT id FROM users WHERE email = ?", [$input['email']]);
+            $existingUser = // Database removedfetchOne("SELECT id FROM users WHERE email = ?", [$input['email']]);
             if ($existingUser) {
                 sendResponse(['error' => 'Email already exists'], 400);
                 return;
             }
 
             // Create user account
-            $this->db->beginTransaction();
+            // Database removedbeginTransaction();
 
             $username = strtolower($input['first_name'] . '.' . $input['last_name']);
             $defaultPassword = 'Doctor@' . date('Y');
@@ -1135,7 +1135,7 @@ class AdminAPI {
             $userSql = "INSERT INTO users (username, email, password_hash, role, first_name, last_name, phone, is_active) 
                         VALUES (?, ?, ?, 'doctor', ?, ?, ?, true)";
             
-            $userId = $this->db->insert($userSql, [
+            $userId = // Database removedinsert($userSql, [
                 $username,
                 $input['email'],
                 password_hash($defaultPassword, PASSWORD_DEFAULT),
@@ -1148,7 +1148,7 @@ class AdminAPI {
             $doctorSql = "INSERT INTO doctors (user_id, specialty, license_number, experience_years, consultation_fee, education, bio, is_available) 
                           VALUES (?, ?, ?, ?, ?, ?, ?, true)";
             
-            $doctorId = $this->db->insert($doctorSql, [
+            $doctorId = // Database removedinsert($doctorSql, [
                 $userId,
                 $input['specialty'],
                 $input['license_number'],
@@ -1158,7 +1158,7 @@ class AdminAPI {
                 $input['bio'] ?? ''
             ]);
 
-            $this->db->commit();
+            // Database removedcommit();
 
             // Log activity
             $this->logActivity([
@@ -1177,7 +1177,7 @@ class AdminAPI {
             ]);
 
         } catch (Exception $e) {
-            $this->db->rollback();
+            // Database removedrollback();
             error_log("Create doctor error: " . $e->getMessage());
             sendResponse(['error' => 'Failed to create doctor'], 500);
         }
@@ -1228,14 +1228,14 @@ class AdminAPI {
             }
 
             // Check if email already exists
-            $existingUser = $this->db->fetchOne("SELECT id FROM users WHERE email = ?", [$input['email']]);
+            $existingUser = // Database removedfetchOne("SELECT id FROM users WHERE email = ?", [$input['email']]);
             if ($existingUser) {
                 sendResponse(['error' => 'Email already exists'], 400);
                 return;
             }
 
             // Create user account
-            $this->db->beginTransaction();
+            // Database removedbeginTransaction();
 
             $username = strtolower($input['first_name'] . '.' . $input['last_name']);
             $defaultPassword = 'Staff@' . date('Y');
@@ -1243,7 +1243,7 @@ class AdminAPI {
             $userSql = "INSERT INTO users (username, email, password_hash, role, first_name, last_name, phone, is_active) 
                         VALUES (?, ?, ?, 'staff', ?, ?, ?, true)";
             
-            $userId = $this->db->insert($userSql, [
+            $userId = // Database removedinsert($userSql, [
                 $username,
                 $input['email'],
                 password_hash($defaultPassword, PASSWORD_DEFAULT),
@@ -1253,7 +1253,7 @@ class AdminAPI {
             ]);
 
             // Create staff table if it doesn't exist
-            $this->db->query("CREATE TABLE IF NOT EXISTS staff (
+            // Database removedquery("CREATE TABLE IF NOT EXISTS staff (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
                 department VARCHAR(100),
@@ -1267,7 +1267,7 @@ class AdminAPI {
             $staffSql = "INSERT INTO staff (user_id, department, employee_id, hire_date, qualifications) 
                          VALUES (?, ?, ?, ?, ?)";
             
-            $staffId = $this->db->insert($staffSql, [
+            $staffId = // Database removedinsert($staffSql, [
                 $userId,
                 $input['department'],
                 $input['employee_id'],
@@ -1275,7 +1275,7 @@ class AdminAPI {
                 $input['qualifications'] ?? ''
             ]);
 
-            $this->db->commit();
+            // Database removedcommit();
 
             // Log activity
             $this->logActivity([
@@ -1294,7 +1294,7 @@ class AdminAPI {
             ]);
 
         } catch (Exception $e) {
-            $this->db->rollback();
+            // Database removedrollback();
             error_log("Create staff error: " . $e->getMessage());
             sendResponse(['error' => 'Failed to create staff member'], 500);
         }

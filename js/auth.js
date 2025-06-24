@@ -1,389 +1,303 @@
-// Authentication JavaScript for eChannelling
+/**
+ * Authentication Manager
+ * Handles user login, registration, and session management
+ */
 
 class AuthManager {
     constructor() {
-        this.currentUser = null;
-        this.initializeAuth();
+        this.initializeEventListeners();
+        this.initAuth();
     }
 
-    initializeAuth() {
-        this.setupFormHandlers();
-        this.setupPasswordStrength();
-        this.setupSocialLogin();
-        this.checkAuthStatus();
-    }
-
-    setupFormHandlers() {
-        // Login form
-        const loginForm = document.getElementById('login-form');
-        if (loginForm) {
-            loginForm.addEventListener('submit', (e) => this.handleLogin(e));
-        }
-
-        // Register form
-        const registerForm = document.getElementById('register-form');
-        if (registerForm) {
-            registerForm.addEventListener('submit', (e) => this.handleRegister(e));
-        }
-    }
-
-    setupPasswordStrength() {
-        const passwordInput = document.getElementById('register-password');
-        if (passwordInput) {
-            passwordInput.addEventListener('input', (e) => this.checkPasswordStrength(e.target.value));
-        }
-    }
-
-    checkPasswordStrength(password) {
-        const strengthBar = document.getElementById('strength-bar');
-        const strengthText = document.getElementById('strength-text');
-        
-        if (!strengthBar || !strengthText) return;
-
-        let strength = 0;
-        let feedback = '';
-
-        // Check password criteria
-        if (password.length >= 8) strength++;
-        if (/[a-z]/.test(password)) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
-
-        // Remove existing classes
-        strengthBar.className = 'strength-bar';
-
-        switch (strength) {
-            case 0:
-            case 1:
-                strengthBar.classList.add('weak');
-                feedback = 'Weak password';
-                break;
-            case 2:
-                strengthBar.classList.add('fair');
-                feedback = 'Fair password';
-                break;
-            case 3:
-            case 4:
-                strengthBar.classList.add('good');
-                feedback = 'Good password';
-                break;
-            case 5:
-                strengthBar.classList.add('strong');
-                feedback = 'Strong password';
-                break;
-        }
-
-        strengthText.textContent = feedback;
-    }
-
-    setupSocialLogin() {
-        // Social login will be implemented with actual OAuth providers
-        console.log('Social login setup complete');
-    }
-
-    async handleLogin(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        const loginData = {
-            email: formData.get('email'),
-            password: formData.get('password'),
-            remember: formData.get('remember') === 'on'
-        };
-
-        // Show loading state
-        const submitBtn = e.target.querySelector('.btn-auth-primary');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Signing In...';
-        submitBtn.disabled = true;
-
+    async initAuth() {
+        // Check if user is already logged in
         try {
-            // Simulate API call
-            await this.simulateAuthRequest();
+            const response = await fetch('/php/auth.php?action=verify');
+            const data = await response.json();
             
-            // Mock user data
-            this.currentUser = {
-                id: 1,
-                email: loginData.email,
-                name: 'John Doe',
-                role: 'patient',
-                avatar: null
-            };
-
-            // Store user session
-            if (loginData.remember) {
-                localStorage.setItem('echannelling_user', JSON.stringify(this.currentUser));
-            } else {
-                sessionStorage.setItem('echannelling_user', JSON.stringify(this.currentUser));
+            if (data.authenticated) {
+                this.handleLoginSuccess(data.user);
             }
-
-            this.showNotification('Login successful! Redirecting...', 'success');
-            
-            // Redirect based on user role
-            setTimeout(() => {
-                this.redirectAfterLogin(this.currentUser.role);
-            }, 1500);
-
         } catch (error) {
-            this.showNotification('Invalid email or password. Please try again.', 'error');
-        } finally {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
+            console.log('No active session');
         }
     }
 
-    async handleRegister(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(e.target);
-        const registerData = {
-            firstName: formData.get('firstName'),
-            lastName: formData.get('lastName'),
-            email: formData.get('email'),
-            phone: formData.get('phone'),
-            dateOfBirth: formData.get('dateOfBirth'),
-            gender: formData.get('gender'),
-            password: formData.get('password'),
-            confirmPassword: formData.get('confirmPassword'),
-            terms: formData.get('terms') === 'on',
-            newsletter: formData.get('newsletter') === 'on'
-        };
+    initializeEventListeners() {
+        // Handle login form submission
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            loginForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleLogin();
+            });
+        }
 
-        // Validation
-        if (!this.validateRegistration(registerData)) {
+        // Handle registration form submission
+        const registerForm = document.getElementById('registerForm');
+        if (registerForm) {
+            registerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleRegister();
+            });
+        }
+
+        // Handle social login buttons
+        const socialLoginButtons = document.querySelectorAll('.social-login-btn');
+        socialLoginButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleSocialLogin(button.dataset.provider);
+            });
+        });
+
+        // Handle forgot password
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                this.handleForgotPassword();
+            });
+        }
+    }
+
+    async handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+            this.showError('Please fill in all fields.');
             return;
         }
 
-        // Show loading state
-        const submitBtn = e.target.querySelector('.btn-auth-primary');
-        const originalText = submitBtn.textContent;
-        submitBtn.textContent = 'Creating Account...';
-        submitBtn.disabled = true;
+        if (!this.validateEmail(email)) {
+            this.showError('Please enter a valid email address.');
+            return;
+        }
+
+        this.showLoading(true);
 
         try {
-            // Simulate API call
-            await this.simulateAuthRequest();
-            
-            this.showNotification('Account created successfully! Please check your email for verification.', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 2000);
+            const response = await fetch('/php/auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'login',
+                    email: email,
+                    password: password
+                })
+            });
 
-        } catch (error) {
-            this.showNotification('Registration failed. Please try again.', 'error');
-        } finally {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }
-    }
+            const data = await response.json();
 
-    validateRegistration(data) {
-        if (data.password !== data.confirmPassword) {
-            this.showNotification('Passwords do not match', 'error');
-            return false;
-        }
-
-        if (data.password.length < 8) {
-            this.showNotification('Password must be at least 8 characters long', 'error');
-            return false;
-        }
-
-        if (!data.terms) {
-            this.showNotification('You must agree to the Terms of Service', 'error');
-            return false;
-        }
-
-        // Validate age (must be at least 13 years old)
-        const birthDate = new Date(data.dateOfBirth);
-        const today = new Date();
-        const age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-
-        if (age < 13) {
-            this.showNotification('You must be at least 13 years old to register', 'error');
-            return false;
-        }
-
-        return true;
-    }
-
-    async simulateAuthRequest() {
-        // Simulate network delay
-        return new Promise((resolve, reject) => {
-            setTimeout(() => {
-                // 90% success rate for demo
-                if (Math.random() > 0.1) {
-                    resolve();
-                } else {
-                    reject(new Error('Authentication failed'));
-                }
-            }, 1500);
-        });
-    }
-
-    redirectAfterLogin(role) {
-        switch (role) {
-            case 'doctor':
-                window.location.href = 'doctor-dashboard.html';
-                break;
-            case 'admin':
-                window.location.href = 'admin-dashboard.html';
-                break;
-            case 'patient':
-            default:
-                window.location.href = 'patient-dashboard.html';
-                break;
-        }
-    }
-
-    checkAuthStatus() {
-        const storedUser = localStorage.getItem('echannelling_user') || 
-                          sessionStorage.getItem('echannelling_user');
-        
-        if (storedUser) {
-            this.currentUser = JSON.parse(storedUser);
-            // Don't auto-redirect if user is already on their correct dashboard
-            const currentPage = window.location.pathname.split('/').pop();
-            const expectedPage = this.getExpectedDashboard(this.currentUser.role);
-            
-            // Only redirect if on wrong dashboard, not if already on correct one
-            if (currentPage !== expectedPage && this.shouldRedirect(currentPage)) {
-                this.redirectAfterLogin(this.currentUser.role);
+            if (response.ok && data.success) {
+                this.handleLoginSuccess(data.user);
+            } else {
+                this.showError(data.error || 'Login failed');
             }
+        } catch (error) {
+            console.error('Login error:', error);
+            this.showError('Login failed. Please try again.');
+        } finally {
+            this.showLoading(false);
         }
     }
 
-    getExpectedDashboard(role) {
-        switch (role) {
-            case 'doctor':
-                return 'doctor-dashboard.html';
-            case 'admin':
-                return 'admin-dashboard.html';
-            case 'patient':
-            default:
-                return 'patient-dashboard.html';
-        }
-    }
+    handleLoginSuccess(user) {
+        // Store user data in localStorage
+        localStorage.setItem('currentUser', JSON.stringify(user));
 
-    shouldRedirect(currentPage) {
-        // Don't redirect if already on a dashboard page or login/register pages
-        const noRedirectPages = [
-            'doctor-dashboard.html',
-            'admin-dashboard.html', 
-            'patient-dashboard.html',
-            'login.html',
-            'register.html',
-            'index.html',
-            ''
-        ];
-        return !noRedirectPages.includes(currentPage);
-    }
-
-    logout() {
-        this.currentUser = null;
-        localStorage.removeItem('echannelling_user');
-        sessionStorage.removeItem('echannelling_user');
-        window.location.href = 'index.html';
-    }
-
-    showNotification(message, type = 'info') {
-        // Create notification element
-        const notification = document.createElement('div');
-        notification.className = `notification notification-${type}`;
-        notification.textContent = message;
+        this.showSuccess('Login successful! Redirecting...');
         
-        // Style the notification
-        Object.assign(notification.style, {
-            position: 'fixed',
-            top: '100px',
-            right: '20px',
-            padding: '15px 20px',
-            borderRadius: '8px',
-            color: 'white',
-            fontWeight: '500',
-            zIndex: '9999',
-            minWidth: '300px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            transform: 'translateX(100%)',
-            transition: 'transform 0.3s ease'
+        // Redirect based on role
+        setTimeout(() => {
+            switch(user.role) {
+                case 'patient':
+                    window.location.href = 'patient-dashboard.html';
+                    break;
+                case 'doctor':
+                    window.location.href = 'doctor-dashboard.html';
+                    break;
+                case 'admin':
+                    window.location.href = 'admin-dashboard.html';
+                    break;
+                default:
+                    window.location.href = 'dashboard.html';
+            }
+        }, 2000);
+    }
+
+    async handleRegister() {
+        const firstName = document.getElementById('firstName').value;
+        const lastName = document.getElementById('lastName').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const phone = document.getElementById('phone').value;
+
+        if (!firstName || !lastName || !email || !password || !confirmPassword) {
+            this.showError('Please fill in all required fields.');
+            return;
+        }
+
+        if (!this.validateEmail(email)) {
+            this.showError('Please enter a valid email address.');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            this.showError('Passwords do not match.');
+            return;
+        }
+
+        if (password.length < 6) {
+            this.showError('Password must be at least 6 characters long.');
+            return;
+        }
+
+        this.showLoading(true);
+
+        try {
+            const response = await fetch('/php/auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'register',
+                    first_name: firstName,
+                    last_name: lastName,
+                    email: email,
+                    password: password,
+                    phone: phone,
+                    role: 'patient'
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                this.showSuccess('Registration successful! Redirecting to login...');
+                
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } else {
+                this.showError(data.error || 'Registration failed');
+            }
+        } catch (error) {
+            console.error('Registration error:', error);
+            this.showError('Registration failed. Please try again.');
+        } finally {
+            this.showLoading(false);
+        }
+    }
+
+    async handleLogout() {
+        try {
+            await fetch('/php/auth.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    action: 'logout'
+                })
+            });
+
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        } catch (error) {
+            console.error('Logout error:', error);
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        }
+    }
+
+    handleSocialLogin(provider) {
+        this.showError(`${provider} login will be available soon.`);
+    }
+
+    handleForgotPassword() {
+        const email = prompt('Please enter your email address:');
+        if (email && this.validateEmail(email)) {
+            this.showSuccess('Password reset instructions sent to your email.');
+        } else if (email) {
+            this.showError('Please enter a valid email address.');
+        }
+    }
+
+    validateEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+
+    showError(message) {
+        this.showMessage(message, 'error');
+    }
+
+    showSuccess(message) {
+        this.showMessage(message, 'success');
+    }
+
+    showMessage(message, type) {
+        // Remove existing messages
+        const existingMessages = document.querySelectorAll('.auth-message');
+        existingMessages.forEach(msg => msg.remove());
+
+        // Create new message
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `auth-message ${type}`;
+        messageDiv.textContent = message;
+        messageDiv.style.cssText = `
+            padding: 12px 16px;
+            margin: 16px 0;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            ${type === 'error' ? 
+                'background-color: #fee; color: #c53030; border: 1px solid #fed7d7;' : 
+                'background-color: #f0fff4; color: #2f855a; border: 1px solid #9ae6b4;'}
+        `;
+
+        // Insert message at the top of the form
+        const form = document.querySelector('form');
+        if (form) {
+            form.insertBefore(messageDiv, form.firstChild);
+        }
+
+        // Auto-remove message after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 5000);
+    }
+
+    showLoading(show) {
+        const submitButtons = document.querySelectorAll('button[type="submit"]');
+        submitButtons.forEach(button => {
+            if (show) {
+                button.disabled = true;
+                button.style.opacity = '0.6';
+                button.textContent = 'Processing...';
+            } else {
+                button.disabled = false;
+                button.style.opacity = '1';
+                button.textContent = button.getAttribute('data-original-text') || 'Submit';
+            }
         });
-
-        // Set background color based on type
-        const colors = {
-            success: '#0CC029',
-            error: '#ef4444',
-            warning: '#FFD21D',
-            info: '#0057a4'
-        };
-        notification.style.backgroundColor = colors[type] || colors.info;
-
-        // Add to page
-        document.body.appendChild(notification);
-
-        // Animate in
-        setTimeout(() => {
-            notification.style.transform = 'translateX(0)';
-        }, 100);
-
-        // Remove after 4 seconds
-        setTimeout(() => {
-            notification.style.transform = 'translateX(100%)';
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 300);
-        }, 4000);
-    }
-
-    getCurrentUser() {
-        return this.currentUser;
-    }
-
-    isAuthenticated() {
-        return this.currentUser !== null;
     }
 }
 
-// Global functions for inline event handlers
-function togglePassword(inputId) {
-    const input = document.getElementById(inputId);
-    const toggle = input.nextElementSibling;
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        toggle.textContent = '🙈';
-    } else {
-        input.type = 'password';
-        toggle.textContent = '👁️';
-    }
-}
-
-function loginWithGoogle() {
-    authManager.showNotification('Google login will be implemented with OAuth integration', 'info');
-}
-
-function loginWithFacebook() {
-    authManager.showNotification('Facebook login will be implemented with OAuth integration', 'info');
-}
-
-function registerWithGoogle() {
-    authManager.showNotification('Google registration will be implemented with OAuth integration', 'info');
-}
-
-function registerWithFacebook() {
-    authManager.showNotification('Facebook registration will be implemented with OAuth integration', 'info');
-}
-
-// Initialize authentication manager
-let authManager;
-
+// Initialize authentication manager when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    authManager = new AuthManager();
+    window.authManager = new AuthManager();
 });
+
+// Setup social login complete callback
+window.socialLoginSetupComplete = () => {
+    console.log('Social login setup complete');
+};

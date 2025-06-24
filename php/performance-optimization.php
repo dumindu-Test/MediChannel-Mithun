@@ -69,7 +69,7 @@ class QueryOptimizer {
         }
         
         // Execute query and cache result
-        $db = Database::getInstance();
+        $db = // Database removed - using mock datagetInstance();
         $result = $db->fetchAll($query, $params);
         
         // Cache for 5 minutes

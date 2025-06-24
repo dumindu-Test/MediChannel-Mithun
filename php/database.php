@@ -1,6 +1,6 @@
 <?php
 /**
- * Database connection and utility functions
+ * MySQL Database connection and utility functions
  */
 
 class Database {
@@ -20,24 +20,24 @@ class Database {
     
     private function connect() {
         try {
-            // Use individual environment variables directly
-            $host = $_ENV['PGHOST'] ?? getenv('PGHOST') ?? 'localhost';
-            $port = $_ENV['PGPORT'] ?? getenv('PGPORT') ?? '5432';
-            $dbname = $_ENV['PGDATABASE'] ?? getenv('PGDATABASE') ?? 'healthcare_plus';
-            $user = $_ENV['PGUSER'] ?? getenv('PGUSER') ?? 'postgres';
-            $password = $_ENV['PGPASSWORD'] ?? getenv('PGPASSWORD') ?? '';
+            $host = defined('MYSQL_HOST') ? MYSQL_HOST : 'localhost';
+            $port = defined('MYSQL_PORT') ? MYSQL_PORT : '3306';
+            $dbname = defined('MYSQL_DATABASE') ? MYSQL_DATABASE : 'eChannelling';
+            $username = defined('MYSQL_USERNAME') ? MYSQL_USERNAME : 'root';
+            $password = defined('MYSQL_PASSWORD') ? MYSQL_PASSWORD : '';
             
-            $dsn = "pgsql:host=$host;port=$port;dbname=$dbname";
+            $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
             
-            $this->connection = new PDO($dsn, $user, $password, [
+            $this->connection = new PDO($dsn, $username, $password, [
                 PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES => false,
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
             ]);
             
         } catch (Exception $e) {
-            error_log("Database connection failed: " . $e->getMessage());
-            throw new Exception("Database connection failed");
+            error_log("MySQL connection failed: " . $e->getMessage());
+            throw new Exception("Database connection failed: " . $e->getMessage());
         }
     }
     
@@ -49,31 +49,25 @@ class Database {
         try {
             $stmt = $this->connection->prepare($sql);
             $stmt->execute($params);
-            return $stmt;
-        } catch (PDOException $e) {
-            error_log("Database query failed: " . $e->getMessage());
-            throw new Exception("Database query failed");
+            return $stmt->fetchAll();
+        } catch (Exception $e) {
+            error_log("Query failed: " . $e->getMessage());
+            throw new Exception("Query execution failed");
         }
     }
     
-    public function fetchAll($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetchAll();
+    public function execute($sql, $params = []) {
+        try {
+            $stmt = $this->connection->prepare($sql);
+            return $stmt->execute($params);
+        } catch (Exception $e) {
+            error_log("Execute failed: " . $e->getMessage());
+            throw new Exception("Query execution failed");
+        }
     }
     
-    public function fetchOne($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->fetch();
-    }
-    
-    public function insert($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
+    public function lastInsertId() {
         return $this->connection->lastInsertId();
-    }
-    
-    public function update($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
     }
     
     public function beginTransaction() {
@@ -87,8 +81,5 @@ class Database {
     public function rollback() {
         return $this->connection->rollback();
     }
-    
-    public function generateBookingReference() {
-        return 'HCP' . date('Ymd') . str_pad(mt_rand(1, 9999), 4, '0', STR_PAD_LEFT);
-    }
 }
+?>

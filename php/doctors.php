@@ -1,6 +1,6 @@
 <?php
 /**
- * Doctors API Handler
+ * Doctors API - MySQL Database Implementation
  * Manages doctor listings, profiles, and related operations
  */
 
@@ -14,219 +14,97 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit(0);
 }
 
-class DoctorsHandler {
-    private $mockStorage;
-    private $database;
+$method = $_SERVER['REQUEST_METHOD'];
+
+try {
+    $db = Database::getInstance();
     
-    public function __construct() {
-        $this->mockStorage = MockDataStorage::getInstance();
-        try {
-            $this->database = Database::getInstance();
-        } catch (Exception $e) {
-            error_log("Database connection failed in DoctorsHandler: " . $e->getMessage());
-            $this->database = null;
-        }
-    }
-    
-    public function handleRequest() {
-        $method = $_SERVER['REQUEST_METHOD'];
-        
-        if ($method === 'GET') {
-            $this->handleGetRequest();
-        } elseif ($method === 'POST') {
-            $this->handlePostRequest();
-        } else {
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Method not allowed']);
-        }
-    }
-    
-    private function handleGetRequest() {
-        $doctorId = $_GET['id'] ?? null;
-        $hospital = $_GET['hospital'] ?? null;
-        $specialty = $_GET['specialty'] ?? null;
-        
-        if ($doctorId) {
-            $this->getDoctorProfile($doctorId);
-        } else {
-            $this->getDoctorsList();
-        }
-    }
-    
-    private function handlePostRequest() {
-        header('Content-Type: application/json');
-        echo json_encode(['error' => 'POST not implemented']);
-    }
-    
-    private function getDoctorsList() {
-        try {
-            $specialty = $_GET['specialty'] ?? '';
-            $search = $_GET['search'] ?? '';
-            $hospital = $_GET['hospital'] ?? '';
-            
-            if ($this->database) {
-                // Simple query to get doctors directly from doctors table
-                $query = "SELECT * FROM doctors WHERE 1=1";
+    switch ($method) {
+        case 'GET':
+            if (isset($_GET['id'])) {
+                // Get specific doctor
+                $doctor_id = (int)$_GET['id'];
+                $sql = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.city 
+                        FROM doctors d 
+                        JOIN users u ON d.user_id = u.id 
+                        WHERE d.id = ?";
+                $doctor = $db->query($sql, [$doctor_id]);
                 
+                if (empty($doctor)) {
+                    http_response_code(404);
+                    echo json_encode(['error' => 'Doctor not found']);
+                    exit;
+                }
+                
+                $doctor = $doctor[0];
+                // Combine names for frontend compatibility
+                $doctor['name'] = $doctor['first_name'] . ' ' . $doctor['last_name'];
+                
+                // Parse comma-separated fields
+                $doctor['subspecialties'] = !empty($doctor['subspecialties']) ? explode(',', $doctor['subspecialties']) : [];
+                $doctor['languages'] = !empty($doctor['languages']) ? explode(',', $doctor['languages']) : [];
+                $doctor['certifications'] = !empty($doctor['certifications']) ? explode(',', $doctor['certifications']) : [];
+                $doctor['hospital_affiliations'] = !empty($doctor['hospital_affiliations']) ? explode(',', $doctor['hospital_affiliations']) : [];
+                $doctor['services'] = !empty($doctor['services']) ? explode(',', $doctor['services']) : [];
+                $doctor['location'] = $doctor['hospital_affiliations'][0] ?? $doctor['city'];
+                $doctor['available'] = (bool)$doctor['is_available'];
+                
+                echo json_encode($doctor);
+            } else {
+                // Get all doctors or filter by specialty
+                $specialty = $_GET['specialty'] ?? null;
+                $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : null;
+                $search = $_GET['search'] ?? null;
+                
+                $sql = "SELECT d.*, u.first_name, u.last_name, u.email, u.phone, u.city 
+                        FROM doctors d 
+                        JOIN users u ON d.user_id = u.id 
+                        WHERE d.is_available = true";
                 $params = [];
                 
-                // Add filters
-                if (!empty($specialty)) {
-                    $query .= " AND specialty ILIKE ?";
-                    $params[] = "%$specialty%";
+                if ($specialty) {
+                    $sql .= " AND LOWER(d.specialty) = LOWER(?)";
+                    $params[] = $specialty;
                 }
                 
-                if (!empty($search)) {
-                    $query .= " AND (name ILIKE ? OR specialty ILIKE ?)";
-                    $params[] = "%$search%";
-                    $params[] = "%$search%";
+                if ($search) {
+                    $sql .= " AND (LOWER(CONCAT(u.first_name, ' ', u.last_name)) LIKE LOWER(?) OR LOWER(d.specialty) LIKE LOWER(?))";
+                    $searchTerm = "%$search%";
+                    $params[] = $searchTerm;
+                    $params[] = $searchTerm;
                 }
                 
-                if (!empty($hospital)) {
-                    $query .= " AND location ILIKE ?";
-                    $params[] = "%$hospital%";
+                if ($limit) {
+                    $sql .= " LIMIT ?";
+                    $params[] = $limit;
                 }
                 
-                $query .= " ORDER BY rating DESC, reviews DESC";
+                $doctors = $db->query($sql, $params);
                 
-                $doctors = $this->database->fetchAll($query, $params);
+                // Process each doctor
+                foreach ($doctors as &$doctor) {
+                    $doctor['name'] = $doctor['first_name'] . ' ' . $doctor['last_name'];
+                    $doctor['subspecialties'] = !empty($doctor['subspecialties']) ? explode(',', $doctor['subspecialties']) : [];
+                    $doctor['languages'] = !empty($doctor['languages']) ? explode(',', $doctor['languages']) : [];
+                    $doctor['certifications'] = !empty($doctor['certifications']) ? explode(',', $doctor['certifications']) : [];
+                    $doctor['hospital_affiliations'] = !empty($doctor['hospital_affiliations']) ? explode(',', $doctor['hospital_affiliations']) : [];
+                    $doctor['services'] = !empty($doctor['services']) ? explode(',', $doctor['services']) : [];
+                    $doctor['location'] = $doctor['hospital_affiliations'][0] ?? $doctor['city'];
+                    $doctor['available'] = (bool)$doctor['is_available'];
+                }
                 
-                // Format the response to match frontend expectations
-                $formattedDoctors = array_map(function($doctor) {
-                    return [
-                        'id' => $doctor['id'],
-                        'name' => $doctor['name'],
-                        'specialty' => $doctor['specialty'],
-                        'subspecialties' => isset($doctor['subspecialties']) ? json_decode($doctor['subspecialties'], true) : [],
-                        'education' => $doctor['education'] ?? 'Medical Degree',
-                        'experience' => $doctor['experience'] ?? 10,
-                        'location' => $doctor['location'] ?? 'Various Hospitals',
-                        'phone' => $doctor['phone'],
-                        'email' => $doctor['email'],
-                        'fee' => floatval($doctor['fee']),
-                        'rating' => floatval($doctor['rating']),
-                        'reviews' => intval($doctor['reviews']),
-                        'about' => $doctor['about'],
-                        'services' => isset($doctor['services']) ? json_decode($doctor['services'], true) : [],
-                        'certifications' => isset($doctor['certifications']) ? json_decode($doctor['certifications'], true) : [],
-                        'languages' => isset($doctor['languages']) ? json_decode($doctor['languages'], true) : [],
-                        'available' => $doctor['available'] ?? true,
-                        'patients_treated' => $doctor['patients_treated'] ?? 0
-                    ];
-                }, $doctors);
-                
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'doctors' => $formattedDoctors]);
-            } else {
-                // Fall back to mock data
-                $this->returnMockDoctors($specialty, $hospital);
+                echo json_encode($doctors);
             }
+            break;
             
-        } catch (Exception $e) {
-            error_log("Database error in getDoctorsList: " . $e->getMessage());
-            // Fallback to mock data
-            $this->returnMockDoctors($specialty, $hospital);
-        }
+        default:
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+            break;
     }
-    
-    private function getDoctorProfile($doctorId) {
-        try {
-            $doctorId = (int)$doctorId;
-            
-            if ($doctorId <= 0) {
-                header('Content-Type: application/json');
-                echo json_encode(['error' => 'Invalid doctor ID']);
-                return;
-            }
-            
-            // First try to get from database
-            if ($this->database) {
-                $doctor = $this->database->fetchOne(
-                    "SELECT * FROM doctors WHERE id = ?",
-                    [$doctorId]
-                );
-                
-                if ($doctor) {
-                    // Format the response to match frontend expectations
-                    $formattedDoctor = [
-                        'id' => $doctor['id'],
-                        'name' => $doctor['name'],
-                        'specialty' => $doctor['specialty'],
-                        'subspecialties' => isset($doctor['subspecialties']) ? json_decode($doctor['subspecialties'], true) : [],
-                        'education' => $doctor['education'] ?? 'Medical Degree',
-                        'experience' => $doctor['experience'] ?? 10,
-                        'location' => $doctor['location'] ?? 'Various Hospitals',
-                        'phone' => $doctor['phone'],
-                        'email' => $doctor['email'],
-                        'fee' => floatval($doctor['fee']),
-                        'rating' => floatval($doctor['rating']),
-                        'reviews' => intval($doctor['reviews']),
-                        'about' => $doctor['about'],
-                        'services' => isset($doctor['services']) ? json_decode($doctor['services'], true) : [],
-                        'certifications' => isset($doctor['certifications']) ? json_decode($doctor['certifications'], true) : [],
-                        'languages' => isset($doctor['languages']) ? json_decode($doctor['languages'], true) : [],
-                        'available' => $doctor['available'] ?? true,
-                        'patients_treated' => $doctor['patients_treated'] ?? 0
-                    ];
-                    
-                    header('Content-Type: application/json');
-                    echo json_encode($formattedDoctor);
-                    return;
-                }
-            }
-            
-            // Fallback to mock data if database fails or doctor not found
-            $doctor = $this->mockStorage->getDoctorById($doctorId);
-            
-            if (!$doctor) {
-                header('Content-Type: application/json');
-                echo json_encode(['error' => 'Doctor not found']);
-                return;
-            }
-            
-            header('Content-Type: application/json');
-            echo json_encode($doctor);
-            
-        } catch (Exception $e) {
-            error_log("Error getting doctor profile: " . $e->getMessage());
-            header('Content-Type: application/json');
-            echo json_encode(['error' => 'Failed to load doctor profile']);
-        }
-    }
-    
-    private function returnMockDoctors($specialty = null, $hospital = null) {
-        $mockDoctors = $this->mockStorage->getDoctors();
-        
-        // Filter by specialty if provided
-        if ($specialty && $specialty !== 'all') {
-            $mockDoctors = array_filter($mockDoctors, function($doctor) use ($specialty) {
-                return strcasecmp($doctor['specialty'], $specialty) === 0;
-            });
-        }
-        
-        // Filter by hospital if provided
-        if ($hospital && $hospital !== 'all') {
-            $mockDoctors = array_filter($mockDoctors, function($doctor) use ($hospital) {
-                return isset($doctor['hospital']) && strcasecmp($doctor['hospital'], $hospital) === 0;
-            });
-        }
-        
-        // Reindex array
-        $mockDoctors = array_values($mockDoctors);
-        
-        header('Content-Type: application/json');
-        echo json_encode(['success' => true, 'doctors' => $mockDoctors]);
-    }
-}
-
-// Initialize and handle the request
-try {
-    $handler = new DoctorsHandler();
-    $handler->handleRequest();
 } catch (Exception $e) {
-    error_log("Fatal error in doctors.php: " . $e->getMessage());
-    header('Content-Type: application/json');
+    error_log("Error in doctors.php: " . $e->getMessage());
     http_response_code(500);
-    echo json_encode(['error' => 'Internal server error']);
+    echo json_encode(['error' => 'Database connection failed. Please check MySQL connection.']);
 }
 ?>

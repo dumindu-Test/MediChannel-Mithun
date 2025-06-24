@@ -6,7 +6,7 @@
 
 require_once 'config.php';
 require_once 'stripe-config.php';
-require_once 'database.php';
+require_once 'mock-data.php';
 
 setCORSHeaders();
 
@@ -61,7 +61,7 @@ try {
     
     if ($http_code === 200 && $payment_result['status'] === 'succeeded') {
         // Save payment record to database
-        $db = Database::getInstance();
+        $db = // Database removed - using mock datagetInstance();
         $db->query(
             "INSERT INTO payments (transaction_id, amount, payment_method, payment_status, payment_date) VALUES (?, ?, ?, ?, NOW())",
             [$payment_result['id'], $amount, 'stripe', 'completed']

@@ -1,219 +1,218 @@
 <?php
 /**
- * Authentication Handler (Static Demo Mode)
- * Handles login, registration, and authentication for demo purposes
+ * Authentication API for user login, registration, and session management
  */
 
 require_once 'config.php';
-
-// Initialize session configuration using the secure function
-initializeSessionConfig();
+require_once 'database.php';
 
 setCORSHeaders();
 
-// Handle preflight requests
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    exit(0);
-}
+header('Content-Type: application/json');
 
-class AuthHandler {
-    public function handleRequest() {
-        $method = $_SERVER['REQUEST_METHOD'];
-        
-        if ($method === 'POST') {
-            $this->handlePostRequest();
-        } else {
-            sendResponse(['error' => 'Method not allowed'], 405);
-        }
-    }
+$method = $_SERVER['REQUEST_METHOD'];
+
+try {
+    $db = Database::getInstance();
     
-    private function handlePostRequest() {
-        // Handle JSON requests
-        $input = json_decode(file_get_contents('php://input'), true);
-        $action = $input['action'] ?? $_POST['action'] ?? '';
-        
-        switch ($action) {
-            case 'login':
-                $this->login();
-                break;
-            case 'register':
-                $this->register();
-                break;
-            case 'logout':
-                $this->logout();
-                break;
-            default:
-                sendResponse(['error' => 'Invalid action'], 400);
-        }
-    }
-    
-    private function login() {
-        try {
-            $username = sanitizeInput($_POST['username'] ?? '');
-            $password = $_POST['password'] ?? '';
+    switch ($method) {
+        case 'POST':
+            $input = json_decode(file_get_contents('php://input'), true);
+            $action = $input['action'] ?? '';
             
-            if (empty($username) || empty($password)) {
-                sendResponse(['error' => 'Username and password are required'], 400);
+            switch ($action) {
+                case 'login':
+                    handleLogin($db, $input);
+                    break;
+                case 'register':
+                    handleRegister($db, $input);
+                    break;
+                case 'logout':
+                    handleLogout();
+                    break;
+                default:
+                    http_response_code(400);
+                    echo json_encode(['error' => 'Invalid action']);
             }
+            break;
             
-            $mockStorage = MockDataStorage::getInstance();
-            $user = $mockStorage->authenticateUser($username, $password);
-            
-            if (!$user) {
-                sendResponse(['error' => 'Invalid username or password'], 401);
-            }
-            
-            // Create session
-            $sessionId = $mockStorage->createSession($user['id']);
-            
-            // Set session cookie with environment-aware configuration
-            $cookieOptions = [
-                'expires' => time() + SESSION_LIFETIME,
-                'path' => '/',
-                'secure' => false, // Allow both HTTP and HTTPS
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ];
-            
-            // Enhanced cookie setting with fallback for older PHP versions
-            if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
-                setcookie('session_id', $sessionId, $cookieOptions);
+        case 'GET':
+            if (isset($_GET['action']) && $_GET['action'] === 'verify') {
+                verifySession($db);
             } else {
-                // Fallback for older PHP versions
-                setcookie('session_id', $sessionId, time() + SESSION_LIFETIME, '/', '', false, true);
+                http_response_code(400);
+                echo json_encode(['error' => 'Invalid request']);
             }
+            break;
             
-            // Also set a backup header for debugging
-            header('Set-Cookie: session_id=' . $sessionId . '; Path=/; HttpOnly; SameSite=Lax; Max-Age=' . SESSION_LIFETIME);
-            
-            // Remove password from response
-            unset($user['password']);
-            
-            sendResponse([
-                'success' => true,
-                'message' => 'Login successful',
-                'user' => $user,
-                'redirect' => $this->getDashboardUrl($user['role'])
-            ]);
-            
-        } catch (Exception $e) {
-            logError("Login error: " . $e->getMessage());
-            sendResponse(['error' => 'Login failed'], 500);
-        }
+        default:
+            http_response_code(405);
+            echo json_encode(['error' => 'Method not allowed']);
+    }
+} catch (Exception $e) {
+    error_log("Error in auth.php: " . $e->getMessage());
+    http_response_code(500);
+    echo json_encode(['error' => 'Authentication error']);
+}
+
+function handleLogin($db, $input) {
+    $email = $input['email'] ?? '';
+    $password = $input['password'] ?? '';
+    
+    if (empty($email) || empty($password)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Email and password are required']);
+        return;
     }
     
-    private function getDashboardUrl($role) {
-        switch ($role) {
-            case 'patient':
-                return 'dashboard-patient.html';
-            case 'doctor':
-                return 'dashboard-doctor.html';
-            case 'admin':
-            case 'staff':
-                return 'dashboard-admin.html';
-            default:
-                return 'index.html';
-        }
+    // Check user credentials
+    $sql = "SELECT u.*, d.id as doctor_id, d.specialty, p.id as patient_id 
+            FROM users u 
+            LEFT JOIN doctors d ON u.id = d.user_id 
+            LEFT JOIN patients p ON u.id = p.user_id 
+            WHERE u.email = ? AND u.is_active = 1";
+    
+    $users = $db->query($sql, [$email]);
+    
+    if (empty($users)) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid credentials']);
+        return;
     }
     
-    private function register() {
-        try {
-            $firstName = sanitizeInput($_POST['first_name'] ?? '');
-            $lastName = sanitizeInput($_POST['last_name'] ?? '');
-            $email = sanitizeInput($_POST['email'] ?? '');
-            $phone = sanitizeInput($_POST['phone'] ?? '');
-            $dateOfBirth = $_POST['date_of_birth'] ?? '';
-            $gender = sanitizeInput($_POST['gender'] ?? '');
-            $password = $_POST['password'] ?? '';
-            $confirmPassword = $_POST['confirm_password'] ?? '';
-            
-            // Validate required fields
-            $errors = [];
-            
-            if (empty($firstName)) {
-                $errors[] = 'First name is required';
-            }
-            
-            if (empty($lastName)) {
-                $errors[] = 'Last name is required';
-            }
-            
-            if (!validateEmail($email)) {
-                $errors[] = 'Valid email address is required';
-            }
-            
-            if (!validatePhone($phone)) {
-                $errors[] = 'Valid phone number is required';
-            }
-            
-            if (empty($dateOfBirth) || !strtotime($dateOfBirth)) {
-                $errors[] = 'Valid date of birth is required';
-            }
-            
-            if (!in_array($gender, ['male', 'female', 'other'])) {
-                $errors[] = 'Valid gender is required';
-            }
-            
-            if (strlen($password) < PASSWORD_MIN_LENGTH) {
-                $errors[] = 'Password must be at least ' . PASSWORD_MIN_LENGTH . ' characters long';
-            }
-            
-            if ($password !== $confirmPassword) {
-                $errors[] = 'Passwords do not match';
-            }
-            
-            if (!empty($errors)) {
-                sendResponse(['error' => 'Validation failed', 'details' => $errors], 400);
-            }
-            
-            // For demo purposes, always return success
-            sendResponse([
-                'success' => true,
-                'message' => 'Registration successful! You can now login.',
-                'user' => [
-                    'firstName' => $firstName,
-                    'lastName' => $lastName,
-                    'email' => $email
-                ]
-            ]);
-            
-        } catch (Exception $e) {
-            logError("Registration error: " . $e->getMessage());
-            sendResponse(['error' => 'Registration failed'], 500);
-        }
+    $user = $users[0];
+    
+    // For demo purposes, accept any password (in production, use password_verify)
+    // if (!password_verify($password, $user['password_hash'])) {
+    //     http_response_code(401);
+    //     echo json_encode(['error' => 'Invalid credentials']);
+    //     return;
+    // }
+    
+    // Create session
+    session_start();
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['user_role'] = $user['role'];
+    $_SESSION['user_email'] = $user['email'];
+    $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
+    
+    if ($user['role'] === 'doctor' && $user['doctor_id']) {
+        $_SESSION['doctor_id'] = $user['doctor_id'];
+        $_SESSION['specialty'] = $user['specialty'];
     }
     
-    private function logout() {
-        try {
-            // Clear session cookie
-            setcookie('session_id', '', [
-                'expires' => time() - 3600,
-                'path' => '/',
-                'secure' => false,
-                'httponly' => true,
-                'samesite' => 'Lax'
-            ]);
-            
-            // Clear session from mock storage
-            $mockStorage = MockDataStorage::getInstance();
-            $sessionId = $_COOKIE['session_id'] ?? '';
-            if ($sessionId) {
-                $mockStorage->clearSession($sessionId);
-            }
-            
-            sendResponse([
-                'success' => true,
-                'message' => 'Logout successful'
-            ]);
-            
-        } catch (Exception $e) {
-            logError("Logout error: " . $e->getMessage());
-            sendResponse(['error' => 'Logout failed'], 500);
+    if ($user['role'] === 'patient' && $user['patient_id']) {
+        $_SESSION['patient_id'] = $user['patient_id'];
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'user' => [
+            'id' => $user['id'],
+            'email' => $user['email'],
+            'name' => $user['first_name'] . ' ' . $user['last_name'],
+            'role' => $user['role'],
+            'doctor_id' => $user['doctor_id'] ?? null,
+            'patient_id' => $user['patient_id'] ?? null,
+            'specialty' => $user['specialty'] ?? null
+        ]
+    ]);
+}
+
+function handleRegister($db, $input) {
+    $firstName = $input['first_name'] ?? '';
+    $lastName = $input['last_name'] ?? '';
+    $email = $input['email'] ?? '';
+    $password = $input['password'] ?? '';
+    $phone = $input['phone'] ?? '';
+    $role = $input['role'] ?? 'patient';
+    
+    if (empty($firstName) || empty($lastName) || empty($email) || empty($password)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'All required fields must be filled']);
+        return;
+    }
+    
+    // Check if email already exists
+    $existingUsers = $db->query("SELECT id FROM users WHERE email = ?", [$email]);
+    if (!empty($existingUsers)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Email already registered']);
+        return;
+    }
+    
+    // Create username from email
+    $username = explode('@', $email)[0];
+    
+    // Hash password (for demo, using a simple hash)
+    $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    
+    try {
+        $db->beginTransaction();
+        
+        // Insert user
+        $sql = "INSERT INTO users (username, email, password_hash, role, first_name, last_name, phone) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
+        $db->execute($sql, [$username, $email, $passwordHash, $role, $firstName, $lastName, $phone]);
+        
+        $userId = $db->lastInsertId();
+        
+        // If registering as patient, create patient record
+        if ($role === 'patient') {
+            $db->execute("INSERT INTO patients (user_id) VALUES (?)", [$userId]);
         }
+        
+        $db->commit();
+        
+        echo json_encode([
+            'success' => true,
+            'message' => 'Registration successful',
+            'user_id' => $userId
+        ]);
+        
+    } catch (Exception $e) {
+        $db->rollback();
+        error_log("Registration error: " . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['error' => 'Registration failed']);
     }
 }
 
-// Handle the request
-$authHandler = new AuthHandler();
-$authHandler->handleRequest();
+function handleLogout() {
+    session_start();
+    session_destroy();
+    echo json_encode(['success' => true, 'message' => 'Logged out successfully']);
+}
+
+function verifySession($db) {
+    session_start();
+    
+    if (!isset($_SESSION['user_id'])) {
+        http_response_code(401);
+        echo json_encode(['authenticated' => false]);
+        return;
+    }
+    
+    // Verify user still exists and is active
+    $users = $db->query("SELECT * FROM users WHERE id = ? AND is_active = 1", [$_SESSION['user_id']]);
+    
+    if (empty($users)) {
+        session_destroy();
+        http_response_code(401);
+        echo json_encode(['authenticated' => false]);
+        return;
+    }
+    
+    $user = $users[0];
+    
+    echo json_encode([
+        'authenticated' => true,
+        'user' => [
+            'id' => $user['id'],
+            'email' => $user['email'],
+            'name' => $user['first_name'] . ' ' . $user['last_name'],
+            'role' => $user['role']
+        ]
+    ]);
+}
 ?>

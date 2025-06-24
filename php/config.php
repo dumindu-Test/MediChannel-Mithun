@@ -11,13 +11,12 @@ require_once __DIR__ . '/performance-headers.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Database Configuration - Enabled for Replit environment
-define('DB_HOST', $_ENV['PGHOST'] ?? 'localhost');
-define('DB_NAME', $_ENV['PGDATABASE'] ?? 'healthcare_plus');
-define('DB_USER', $_ENV['PGUSER'] ?? 'postgres');
-define('DB_PASS', $_ENV['PGPASSWORD'] ?? '');
-define('DB_PORT', $_ENV['PGPORT'] ?? '5432');
-define('DB_CHARSET', 'utf8');
+// MySQL Database Configuration
+define('MYSQL_HOST', 'sql12.freesqldatabase.com');
+define('MYSQL_DATABASE', 'sql12786593');
+define('MYSQL_USERNAME', 'sql12786593');
+define('MYSQL_PASSWORD', 'jWrQK5p23K');
+define('MYSQL_PORT', '3306');
 
 // Application Configuration
 define('APP_NAME', 'HealthCare+');
